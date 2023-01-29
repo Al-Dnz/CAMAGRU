@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  # postgres:
+  #   container_name: postgres
+  #   image: postgres:latest
+  #   networks:
+  #     - backend
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   restart: always
+
+  server:
+    container_name: server
+    build:
+      context: server
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    ports:
+      - 1337:1337
+    env_file: .env
+    restart: always
+
+networks:
+  backend:
+    name: backend_net
+    driver: bridge
+
+#   frontend:
+#     name: frontend_net
+#     driver: bridge
+
+# volumes:
+#   postgres-data:
+#     name: postgres-data
