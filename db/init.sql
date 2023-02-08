@@ -3,12 +3,7 @@ CREATE TABLE "user" (
 	first_name VARCHAR(255),
 	last_name VARCHAR(255),
 	email TEXT
-	age INT,
 );
-
-CREATE TABLE "picture" (
-	id SERIAL PRIMARY KEY,
-	url VARCHAR(255),
-);
-
-INSERT INTO "user"(age, first_name, last_name, email) VALUES (32, 'polo', 'martinezi', 'pmartinezi@yopmail.com');
+INSERT INTO "user"(first_name, last_name, email) VALUES ('polo', 'martinezi', 'pmartinezi@yopmail.com');
+INSERT INTO "user"(first_name, last_name, email) VALUES ('jaky', 'etmichel', 'jakyetmichel@yopmail.com');
+INSERT INTO "user"(first_name, last_name, email) VALUES ('manu', 'tchao', 'manutchao@yopmail.com');
