@@ -1,4 +1,4 @@
-FROM ruby:2.5.5
+FROM ruby:latest
 
 RUN mkdir -p /app 
 
@@ -6,7 +6,11 @@ ADD server.rb /app/
 
 WORKDIR /app/
 
-# RUN gem install 
+COPY Gemfile .
+
+RUN gem install bundler
+
+RUN bundle install 
 
 EXPOSE 1337
 
