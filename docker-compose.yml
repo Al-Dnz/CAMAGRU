@@ -29,7 +29,7 @@ services:
       - .env
     depends_on:
       - postgres
-    restart: always
+    # restart: always
 
 networks:
   backend:
