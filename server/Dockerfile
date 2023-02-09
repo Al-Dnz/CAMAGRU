@@ -2,7 +2,7 @@ FROM ruby:latest
 
 RUN mkdir -p /app 
 
-ADD server.rb /app/
+ADD server.rb request_util.rb server_util.rb /app/
 
 WORKDIR /app/
 
