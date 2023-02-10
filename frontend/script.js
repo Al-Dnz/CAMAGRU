@@ -49,30 +49,39 @@ function createDataBox(element)
 
 function send()
 {
-	var first_name = document.getElementById("first_name").value
-	var last_name = document.getElementById("last_name").value
+	var login = document.getElementById("login").value
+	var password = document.getElementById("password").value
 	var email = document.getElementById("email").value
 
 	data = 
 	{
-		first_name: first_name,
-		last_name: last_name,
+		login: login,
+		password: password,
 		email: email
 	}
 
 	// console.log(email + last_name + name);
-	fetch('http://0.0.0.0:1337/data', {
+	fetch('http://0.0.0.0:1337/register', {
 		method: 'POST',
 		headers: {
 			// 'Content-Type': 'application/json',
 		},
 		body: JSON.stringify(data),
 	})
-	.then((response) => response.json())
+	.then((response) => {
+		if (response.ok)
+			 return response.json();
+		else
+			return Promise.reject(response.json()); 
+	  })
 	.then((data) => {
-	  console.log('Success:', data);
+		console.log('success:', data);
+		login.innerHTML = "";
+		password.innerHTML = "";
+		email.innerHTML = "";
 	})
-	.catch((error) => {
-	  console.error('Error:', error);
+	.catch((data) => {
+		console.log('error:', data);
+	//   console.error('Error:', error);
 	});
 }
