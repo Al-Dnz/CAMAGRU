@@ -2,7 +2,14 @@
 document.addEventListener("DOMContentLoaded", function(event) { 
 	getPartial('navbar', './components/navbar.html');
 	getPartial('form', './components/form.html');
+	// getPartial('videoContainer', './video.html');
 });
+
+function redirectToCamera()
+{
+	window.location.href = 'camera/camera.html';
+	return false;
+}
 
 function getPartial(div, path)
 {
