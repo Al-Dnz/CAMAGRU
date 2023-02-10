@@ -11,6 +11,11 @@ def check_dto(hash, dto_hash)
 	error = false
 	errors_arr = []
 	dto_hash.keys().each do |key|
+		if !hash.key?(key)
+			error = true
+			errors_arr << "#{key} is missing"
+			next
+		end
 		if hash[key].is_a?(dto_hash[key][:type])
 			new_hash[key] = hash[key]
 		else
@@ -31,4 +36,23 @@ def check_dto(hash, dto_hash)
 		end
 	end
 	return error ? errors_arr.join(", ") : new_hash
+end
+
+def find_by_value(column, value, table, conn)	
+	res = conn.exec( "SELECT * FROM \"#{table}\" WHERE #{column} = '#{value}' " )
+	return res[0]
+end
+
+def exist_by_value?(column, value, table, conn)
+	res =  conn.exec("SELECT EXISTS (SELECT 1 FROM \"#{table}\" WHERE #{column} = '#{value}')")
+	return res[0]["exists"] == "t" ? true : false
+end
+
+# def exist_by_value?(to_find, conn)
+# 	res =  conn.exec("SELECT EXISTS (SELECT 1 FROM \"#{to_find["table"]}\" WHERE #{to_find["column"]} = '#{to_find["value"]}')")
+# 	return res[0]["exists"] == "t" ? true : false
+# end
+
+def update_by_value(conn, to_find, to_change)
+	res =  conn.exec("UPDATE \"#{to_find["table"]}\" SET #{to_change["column"]}= '#{to_change["value"]}' WHERE #{to_find["column"]} = '#{to_find["value"]}'")
 end

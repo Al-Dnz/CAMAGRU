@@ -1,6 +1,7 @@
 require 'socket'
 require 'json'
 require 'uri'
+require 'securerandom'
 require 'pg'
 require 'dotenv'
 
@@ -12,25 +13,25 @@ Dotenv.load("../.env")
 
 port = 1337
 server = TCPServer.new(port)
-fd = IO.sysopen("/proc/1/fd/1", "w")
-console = IO.new(fd,"w")
-console.sync = true
-console.puts "server launched on http://localhost:#{port}"
-# puts "server launched on http://localhost:#{port}"
 
-conn = PG::Connection.new(:host =>  ENV["POSTGRES_HOST"], :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
+# fd = IO.sysopen("/proc/1/fd/1", "w")
+# console = IO.new(fd,"w")
+# console.sync = true
+
+puts "server launched on http://localhost:#{port}"
+# console.puts "server launched on http://localhost:#{port}"
+
+conn = PG::Connection.new(:host =>  'localhost', :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
 
 loop do
 	client = server.accept
 	request_line = client.readline
 	method_token, target, version_number = request_line.split
-	
 	response = Response.new
 
 	# Switch on HTTP request
-	case [method_token, target]
-		# console.puts target.split('/')
-		when ["GET", "/data"]
+	case [method_token, target.split('/')[1]]
+		when ["GET", "data"]
 			response.status_code = "200 OK"
 			data = []
 			conn.exec( "SELECT * FROM \"user\"" ) do |result|
@@ -41,34 +42,66 @@ loop do
 				end
 			end
 			response.message = JSON.generate(data)
-		when ["POST", "/data"]
+		when ["POST", "register"]
 			all_headers = get_headers(client)
 			body = client.read(all_headers['Content-Length'].to_i)
-			hash = JSON.parse body.gsub('=>', ':')
-
-			# need Refactor
-			dto_hash = {}
-			dto_hash["first_name"] = {type: String, length: [1, -1]}
-			dto_hash["last_name"] = {type: String, length: [1, -1]}
-			dto_hash["email"] = {type: String, length: [1, -1], contain: '@'}
-
-			hash = check_dto(hash, dto_hash)
-			if hash.is_a?(String)
+			begin
+				hash = JSON.parse body.gsub('=>', ':')
+				
+				dto_hash = {}
+				dto_hash["login"] = {type: String, length: [1, -1]}
+				dto_hash["password"] = {type: String, length: [1, -1]}
+				dto_hash["email"] = {type: String, length: [1, -1], contain: '@'}
+				hash = check_dto(hash, dto_hash)
+				
+				if hash.is_a?(String)
+					response.status_code = "403 FORBIDDEN"
+					response.message = JSON.generate({error: hash})
+					# response.content_type = "text/plain"
+				else
+					if exist_by_value?('email', hash["email"], "user", conn)
+						response.status_code = "403 FORBIDDEN"
+						response.message = JSON.generate({error: "this email is already registered in database"})
+					elsif exist_by_value?('login', hash["login"], "user", conn)
+						response.status_code = "403 FORBIDDEN"
+						response.message = JSON.generate({error: "this login is already registered in database"})
+					else
+						hash["subscription_code"] = SecureRandom.uuid
+						db_insert_request(conn, hash, "user")
+						response.status_code  = "201 Created"
+						response.message = JSON.generate(hash)
+					end
+				end
+			rescue JSON::ParserError
 				response.status_code = "403 FORBIDDEN"
-				response.message = JSON.generate({error: hash})
-				# response.content_type = "text/plain"
+				response.message = JSON.generate({error: "JSON parsing error"})
+			end
+		when ["GET", "confirm"]
+			subscription_code = target.split('/')[2]
+			puts subscription_code
+			if !exist_by_value?('subscription_code', subscription_code, "user", conn) || subscription_code == nil
+				response.status_code = "404 NOT_FOUND"
+				response.message = "no route #{method_token} with the URL #{target}"
+				response.content_type = "text/plain"
 			else
-				db_insert_request(conn, hash, "user")
+				hash = find_by_value("subscription_code", subscription_code, "user", conn)
+				id = hash["id"]
+				to_find = {"table"=>"user", "column"=>"id", "value"=>"#{id}"}
+				to_change = {"column"=>"validated", "value"=>"true"}
+				update_by_value(conn, to_find, to_change)
+				to_change = {"column"=>"subscription_code", "value"=>""}
+				update_by_value(conn, to_find, to_change)
+				hash = find_by_value("id", id, "user", conn)
 				response.status_code  = "201 Created"
 				response.message = JSON.generate(hash)
 			end
-		when ["POST", "/pictures"]
+		when ["POST", "pictures"]
 		else
 			response.status_code = "404 NOT_FOUND"
 			response.message = "no route #{method_token} with the URL #{target}"
 			response.content_type = "text/plain"
 	end
-	console.puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
+	puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
 
  	# Construct the HTTP Response
 	http_response = construct_http_response(response, version_number, target)
