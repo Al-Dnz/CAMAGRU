@@ -62,6 +62,7 @@ loop do
 				response.status_code  = "201 Created"
 				response.message = JSON.generate(hash)
 			end
+		when ["POST", "/pictures"]
 		else
 			response.status_code = "404 NOT_FOUND"
 			response.message = "no route #{method_token} with the URL #{target}"
