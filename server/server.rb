@@ -1,13 +1,14 @@
 require 'socket'
 require 'json'
 require 'uri'
+require 'open-uri'
 require 'securerandom'
 require 'pg'
 require 'dotenv'
+require 'base64'
 
-$LOAD_PATH << '.'
-require 'server_util.rb'
-require 'request_util.rb'
+require_relative './server_util.rb'
+require_relative './request_util.rb'
 
 Dotenv.load("../.env")
 
@@ -23,12 +24,14 @@ puts "server launched on http://localhost:#{port}"
 
 conn = PG::Connection.new(:host =>  'localhost', :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
 
+i = 1
 loop do
 	client = server.accept
 	request_line = client.readline
 	method_token, target, version_number = request_line.split
 	response = Response.new
 
+	p request_line
 	# Switch on HTTP request
 	case [method_token, target.split('/')[1]]
 		when ["GET", "data"]
@@ -96,6 +99,18 @@ loop do
 				response.message = JSON.generate(hash)
 			end
 		when ["POST", "pictures"]
+			all_headers = get_headers(client)
+			body = client.read(all_headers['Content-Length'].to_i)
+			File.open("./upload/blob_#{i}", 'wb') do |f|
+				f.write body
+			end
+			i+=1
+		when ["GET", "pictures"]
+			pic_id = target.split('/')[2]
+			response.content_type = "image/jpeg"
+			File.open("./upload/#{pic_id}", 'r') do |f|
+				response.message << f.read
+			end
 		else
 			response.status_code = "404 NOT_FOUND"
 			response.message = "no route #{method_token} with the URL #{target}"
