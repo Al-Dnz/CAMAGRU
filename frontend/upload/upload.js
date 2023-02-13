@@ -51,6 +51,10 @@ function postUpload()
 	  })
 	.then((data) => {
 		console.log('success:', data);
+		varBlob = null;
+		var img = document.querySelector('#myImg');
+		URL.revokeObjectURL(img.src);
+		img.src = "";
 	})
 	// .catch(async (error) => {
 	// 	data = await error;
