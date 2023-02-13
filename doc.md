@@ -9,6 +9,9 @@ https://www.tutorialspoint.com/ruby/ruby_database_access.htm
 ## docker
 https://lipanski.com/posts/dockerfile-ruby-best-practices
 
+## HTTP Request
+https://github.github.io/fetch/#url
+
 ## rb <-> php
 rack <-> $_SERVER
 puma <->
