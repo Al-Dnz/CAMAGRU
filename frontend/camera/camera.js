@@ -107,7 +107,12 @@
   // en une URL de données contenant l'image au format PNG.
   // En utilisant un canevas en dehors de l'écran, on peut
   // modifier sa taille et/ou appliquer d'autres modifications
-  // avant de l'afficher à l'écran.
+  // avant de l'afficher à l'écran.	
+
+  function fileToBlob(file) {
+	return new Blob([file], { type: file.type });
+}
+  var myBlob;
 
   function takepicture() {
     const context = canvas.getContext("2d");
@@ -117,6 +122,8 @@
       context.drawImage(video, 0, 0, width, height);
 
       const data = canvas.toDataURL("image/png");
+	
+		
       photo.setAttribute("src", data);
     } else {
       clearphoto();
