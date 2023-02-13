@@ -1,70 +1,47 @@
-// console.log("hello form uplaod");
+import getHost from '../config.js';
 
-// const input = document.getElementById("input");
+const host = await getHost("../config.json");
 
-// const output = document.getElementById("output");
-// let imagesArray = [];
+var varBlob = null;
 
-// if (input)
-// {
-// 	input.addEventListener("change", () => {
-// 		const file = input.files;
-// 		imagesArray.push(file[0]);
-// 		displayImages();
-// 	});
-// }
+const inputBtn = document.querySelector('#input');
+if (inputBtn)
+	inputBtn.addEventListener('change', loadImg) 
 
-
-// function displayImages() {
-//   let images = "";
-//   imagesArray.forEach((image, index) => {
-//     images += `<div class="image">
-// 				  <img src="${URL.createObjectURL(image)}" alt="image">
-// 				  <span onclick="deleteImage(${index})">&times;</span>
-// 				</div>`;
-//   });
-//   output.innerHTML = images;
-// }
-
-// function deleteImage(index) {
-//   imagesArray.splice(index, 1);
-//   displayImages();
-// }
-
-var myBlob;
-
-window.addEventListener('load', function() {
-	document.querySelector('input[type="file"]').addEventListener('change', function() {
-		if (this.files && this.files[0]) {
-			var img = document.querySelector('img');
-			img.onload = () => {
-				URL.revokeObjectURL(img.src);  // no longer needed, free memory
-			}
-			var file = URL.createObjectURL(this.files[0]); // set src to blob url
-			img.src = file; // set src to blob url
-			myBlob = fileToBlob(this.files[0])
-			// console.log("file =>");
-			// console.log(myBlob);
-		}
-	});
-});
+const postUploadBtn = document.querySelector('#postUpload')
+if (postUploadBtn)
+	postUploadBtn.addEventListener('click',  postUpload);
 
 function fileToBlob(file) {
 	return new Blob([file], { type: file.type });
 }
 
+function loadImg()
+{
+	if (this.files && this.files[0]) {
+		var img = document.querySelector('#myImg');
+		img.onload = () => {
+			URL.revokeObjectURL(img.src);  // no longer needed, free memory
+		}
+		var file = URL.createObjectURL(this.files[0]); // set src to blob url
+		img.src = file; // set src to blob url
+		varBlob = fileToBlob(this.files[0]);
+	}
+}
+
 function postUpload()
 {
-	var img = document.querySelector('img');
-	if (!myBlob)
+	if (!varBlob)
+	{
+		console.error("no blob loaded")
 		return;
-	console.log(myBlob);
-	fetch('http://0.0.0.0:1337/pictures', {
+	}
+	fetch(`http://${host}:1337/pictures`, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'multipart/form-data',
 		},
-		body: myBlob,
+		body: varBlob,
 	})
 	.then((response) => {
 		if (response.ok)
@@ -80,3 +57,8 @@ function postUpload()
 	// 	console.error('error:', data.error); 
 	// });
 }
+
+
+
+
+
