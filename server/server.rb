@@ -15,14 +15,15 @@ Dotenv.load("../.env")
 port = 1337
 server = TCPServer.new(port)
 
-# fd = IO.sysopen("/proc/1/fd/1", "w")
-# console = IO.new(fd,"w")
-# console.sync = true
+fd = IO.sysopen("/proc/1/fd/1", "w")
+console = IO.new(fd,"w")
+console.sync = true
 
-puts "server launched on http://localhost:#{port}"
-# console.puts "server launched on http://localhost:#{port}"
+# puts "server launched on http://#{ENV["HOST"]}:#{port}"
+console.puts "server launched on http://localhost:#{port}"
 
-conn = PG::Connection.new(:host =>  'localhost', :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
+# conn = PG::Connection.new(:host =>  'localhost', :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
+conn = PG::Connection.new(:host =>  ENV["POSTGRES_HOST"], :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
 
 i = 1
 loop do
@@ -31,7 +32,6 @@ loop do
 	method_token, target, version_number = request_line.split
 	response = Response.new
 
-	p request_line
 	# Switch on HTTP request
 	case [method_token, target.split('/')[1]]
 		when ["GET", "data"]
@@ -79,9 +79,8 @@ loop do
 				response.status_code = "403 FORBIDDEN"
 				response.message = JSON.generate({error: "JSON parsing error"})
 			end
-		when ["GET", "confirm"]
+		when ["GET", "confirmation"]
 			subscription_code = target.split('/')[2]
-			puts subscription_code
 			if !exist_by_value?('subscription_code', subscription_code, "user", conn) || subscription_code == nil
 				response.status_code = "404 NOT_FOUND"
 				response.message = "no route #{method_token} with the URL #{target}"
@@ -105,18 +104,26 @@ loop do
 				f.write body
 			end
 			i+=1
+			response.status_code  = "201 Created"
+			response.message = JSON.generate({"success"=> "OK"})
 		when ["GET", "pictures"]
 			pic_id = target.split('/')[2]
-			response.content_type = "image/jpeg"
-			File.open("./upload/#{pic_id}", 'r') do |f|
-				response.message << f.read
+			if !File.exist?("./upload/#{pic_id}")
+				response.status_code = "404 NOT_FOUND"
+				response.message = "no route #{method_token} with the URL #{target}"
+				response.content_type = "text/plain"
+			else
+				response.content_type = "image/jpeg"
+				File.open("./upload/#{pic_id}", 'r') do |f|
+					response.message << f.read
+				end
 			end
 		else
 			response.status_code = "404 NOT_FOUND"
 			response.message = "no route #{method_token} with the URL #{target}"
 			response.content_type = "text/plain"
 	end
-	puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
+	console.puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
 
  	# Construct the HTTP Response
 	http_response = construct_http_response(response, version_number, target)

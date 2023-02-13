@@ -1,6 +1,7 @@
 FROM ruby:latest
 
 RUN mkdir -p /app 
+RUN mkdir -p /app/upload
 
 ADD server.rb request_util.rb server_util.rb /app/
 
