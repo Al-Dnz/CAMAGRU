@@ -1,6 +1,6 @@
+import getHost from '../config.js';
 
-
-(() => {
+(async () => {
   // La largeur et la hauteur de la photo capturée. On utilisera
   // une largeur fixe et on calculera la hauteur pour correspondre
   // aux proportions du flux vidéo d'entrée.
@@ -21,7 +21,9 @@
   let photo = null;
   let startbutton = null;
   let postUploadBtn = null
-  let varBlob = null;
+  let varBlob = null; 
+  let host =null;
+
 
   function showViewLiveResultButton() {
     if (window.self !== window.top) {
@@ -38,7 +40,7 @@
     return false;
   }
 
-  function startup() {
+  async function startup() {
     if (showViewLiveResultButton()) {
       return;
     }
@@ -47,6 +49,7 @@
     photo = document.getElementById("photo");
     startbutton = document.getElementById("startbutton");
 	postUploadBtn = document.getElementById("postUpload")
+	host = await getHost("../config.json");
 	
 
     navigator.mediaDevices
@@ -140,9 +143,11 @@
 		}
   }
 
-const host = 'localhost'
+
+
 function postUpload(blob)
 {
+	console.log(host);
 	if (!blob)
 	{
 		console.error("no blob loaded")
@@ -174,14 +179,8 @@ function postUpload(blob)
 	// });
 }
 
-
-
-
-
-
   // On met en place un gestionnaire d'évènement pour exécuter
   // le code lorsque le chargement du document est terminé.
   window.addEventListener("load", startup, false);
-
   
 })();
