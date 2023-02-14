@@ -15,7 +15,7 @@ Dotenv.load("../.env")
 port = 1337
 server = TCPServer.new(port)
 
-mode = ["DEV", "PROD"][1]
+mode = ["DEV", "PROD"].include?(ARGV[0].upcase) ? ARGV[0].upcase : "PROD"
 
 if mode == "DEV"
 #DEV
