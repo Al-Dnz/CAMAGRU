@@ -15,15 +15,31 @@ Dotenv.load("../.env")
 port = 1337
 server = TCPServer.new(port)
 
+#DEV
+# puts "server launched on http://#{ENV["HOST"]}:#{port}"
+# conn = PG::Connection.new(:host =>  'localhost', :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
+
+#PROD
 fd = IO.sysopen("/proc/1/fd/1", "w")
 console = IO.new(fd,"w")
 console.sync = true
-
-# puts "server launched on http://#{ENV["HOST"]}:#{port}"
-console.puts "server launched on http://localhost:#{port}"
-
-# conn = PG::Connection.new(:host =>  'localhost', :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
 conn = PG::Connection.new(:host =>  ENV["POSTGRES_HOST"], :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
+console.puts "server launched on http://#{ENV["HOST"]}:#{port}"
+
+def not_found_response(method_token, target)
+	response = Response.new
+	response.status_code = "404 NOT_FOUND"
+	response.message = "no route #{method_token} with the URL #{target}"
+	response.content_type = "text/plain"
+	return response
+end
+
+def forbidden_reponse(method_token, target, error)
+	response = Response.new
+	response.status_code = "403 FORBIDDEN"
+	response.message = JSON.generate({error: "#{error}"})
+	return response
+end
 
 i = 1
 loop do
@@ -81,10 +97,8 @@ loop do
 			end
 		when ["GET", "confirmation"]
 			subscription_code = target.split('/')[2]
-			if !exist_by_value?('subscription_code', subscription_code, "user", conn) || subscription_code == nil
-				response.status_code = "404 NOT_FOUND"
-				response.message = "no route #{method_token} with the URL #{target}"
-				response.content_type = "text/plain"
+			if subscription_code == nil || !exist_by_value?('subscription_code', subscription_code, "user", conn) 
+				response = not_found_response(method_token, target)
 			else
 				hash = find_by_value("subscription_code", subscription_code, "user", conn)
 				id = hash["id"]
@@ -100,29 +114,23 @@ loop do
 		when ["POST", "pictures"]
 			all_headers = get_headers(client)
 			body = client.read(all_headers['Content-Length'].to_i)
-			File.open("./upload/blob_#{i}", 'wb') do |f|
-				f.write body
-			end
+			File.open("./upload/blob_#{i}", 'wb') { |f| f.write body }
 			i+=1
 			response.status_code  = "201 Created"
 			response.message = JSON.generate({"success"=> "OK"})
 		when ["GET", "pictures"]
 			pic_id = target.split('/')[2]
 			if !File.exist?("./upload/#{pic_id}")
-				response.status_code = "404 NOT_FOUND"
-				response.message = "no route #{method_token} with the URL #{target}"
-				response.content_type = "text/plain"
+				response = not_found_response(method_token, target)
 			else
-				response.content_type = "image/jpeg"
-				File.open("./upload/#{pic_id}", 'r') do |f|
-					response.message << f.read
-				end
+				File.open("./upload/#{pic_id}", 'r') { |f| response.message << f.read }
+				response.status_code = "200 OK"
+				response.content_type = "image/png"
 			end
 		else
-			response.status_code = "404 NOT_FOUND"
-			response.message = "no route #{method_token} with the URL #{target}"
-			response.content_type = "text/plain"
+			response = not_found_response(method_token, target)
 	end
+	# puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
 	console.puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
 
  	# Construct the HTTP Response
