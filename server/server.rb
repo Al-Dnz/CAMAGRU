@@ -15,16 +15,20 @@ Dotenv.load("../.env")
 port = 1337
 server = TCPServer.new(port)
 
-#DEV
-# puts "server launched on http://#{ENV["HOST"]}:#{port}"
-# conn = PG::Connection.new(:host =>  'localhost', :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
+mode = ["DEV", "PROD"][1]
 
+if mode == "DEV"
+#DEV
+	conn = PG::Connection.new(:host =>  'localhost', :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
+	puts "server launched on http://#{ENV["HOST"]}:#{port}"
+elsif mode == "PROD"
 #PROD
-fd = IO.sysopen("/proc/1/fd/1", "w")
-console = IO.new(fd,"w")
-console.sync = true
-conn = PG::Connection.new(:host =>  ENV["POSTGRES_HOST"], :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
-console.puts "server launched on http://#{ENV["HOST"]}:#{port}"
+	conn = PG::Connection.new(:host =>  ENV["POSTGRES_HOST"], :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
+	fd = IO.sysopen("/proc/1/fd/1", "w")
+	console = IO.new(fd,"w")
+	console.sync = true
+	console.puts "server launched on http://#{ENV["HOST"]}:#{port}"
+end
 
 def not_found_response(method_token, target)
 	response = Response.new
@@ -130,8 +134,12 @@ loop do
 		else
 			response = not_found_response(method_token, target)
 	end
-	# puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
-	console.puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
+
+	if (mode == "DEV")
+		puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
+	else
+		console.puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
+	end
 
  	# Construct the HTTP Response
 	http_response = construct_http_response(response, version_number, target)
