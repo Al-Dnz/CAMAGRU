@@ -20,6 +20,8 @@
   let canvas = null;
   let photo = null;
   let startbutton = null;
+  let postUploadBtn = null
+  let varBlob = null;
 
   function showViewLiveResultButton() {
     if (window.self !== window.top) {
@@ -44,6 +46,8 @@
     canvas = document.getElementById("canvas");
     photo = document.getElementById("photo");
     startbutton = document.getElementById("startbutton");
+	postUploadBtn = document.getElementById("postUpload")
+	
 
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: false })
@@ -80,12 +84,20 @@
 
     startbutton.addEventListener(
       "click",
-      (ev) => {
-        takepicture();
+      async (ev) => {
+        varBlob = await takepicture();
         ev.preventDefault();
       },
       false
     );
+
+	postUploadBtn.addEventListener("click",
+		(ev) => {
+		  postUpload(varBlob);
+		  ev.preventDefault();
+		},
+		false
+	  );
 
     clearphoto();
   }
@@ -109,28 +121,63 @@
   // modifier sa taille et/ou appliquer d'autres modifications
   // avant de l'afficher à l'écran.	
 
-  function fileToBlob(file) {
-	return new Blob([file], { type: file.type });
-}
-  var myBlob;
 
-  function takepicture() {
-    const context = canvas.getContext("2d");
-    if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
-      context.drawImage(video, 0, 0, width, height);
+    async function takepicture() {
+		const context = canvas.getContext("2d");
+		if (width && height) {
+		canvas.width = width;
+		canvas.height = height;
+		context.drawImage(video, 0, 0, width, height);
 
-      const data = canvas.toDataURL("image/png");
-	
-		
-      photo.setAttribute("src", data);
-    } else {
-      clearphoto();
-    }
+		const data = canvas.toDataURL("image/png");
+		photo.setAttribute("src", data);
+
+		const blob = await new Promise(resolve => canvas.toBlob(resolve));
+		return blob
+
+		} else {
+			clearphoto();
+		}
   }
 
-  
+const host = 'localhost'
+function postUpload(blob)
+{
+	if (!blob)
+	{
+		console.error("no blob loaded")
+		return;
+	}
+	fetch(`http://${host}:1337/pictures`, {
+		method: "POST",
+		headers: {
+			'Content-Type': 'multipart/form-data',
+		},
+		body: varBlob,
+	})
+	.then((response) => {
+		if (response.ok)
+			 return response.json();
+		else
+			return Promise.reject(response.json()); 
+	  })
+	.then((data) => {
+		console.log('success:', data);
+		varBlob = null;
+		// var img = document.querySelector('#myImg');
+		// URL.revokeObjectURL(img.src);
+		// img.src = "";
+	})
+	// .catch(async (error) => {
+	// 	data = await error;
+	// 	console.error('error:', data.error); 
+	// });
+}
+
+
+
+
+
 
   // On met en place un gestionnaire d'évènement pour exécuter
   // le code lorsque le chargement du document est terminé.
