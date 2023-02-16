@@ -17,7 +17,7 @@ services:
     restart: always
 
   server:
-    container_name: server
+    container_name: backend
     build:
       context: server
       dockerfile: Dockerfile
