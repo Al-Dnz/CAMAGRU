@@ -5,6 +5,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	// getPartial('videoContainer', './video.html');
 });
 
+function redirectToPicTest()
+{
+	window.location.href = 'pic_test/pic_test.html';
+	return false;
+}
+
 function redirectToCamera()
 {
 	window.location.href = 'camera/camera.html';
