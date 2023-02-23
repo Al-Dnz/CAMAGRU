@@ -21,3 +21,9 @@ function addImage() {
 
   context.drawImage(overlayImg, 10, 10, 35, 30); // x, y of top-left, width, height
 }
+
+
+
+//-------------------------------------------------------------
+
+
