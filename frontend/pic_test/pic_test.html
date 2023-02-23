@@ -240,7 +240,7 @@
       display: none;
     }
 
-    #startbutton {
+    #takePicBtn {
       display: block;
       position: relative;
       margin-left: auto;
@@ -256,11 +256,11 @@
       color: rgba(255, 255, 255, 1);
     }
 
-    #startbutton:hover {
+    #takePicBtn:hover {
       background-color: gold;
     }
 
-    .camera {
+    #camera {
       width: 1000px;
       display: inline-block;
     }
@@ -284,10 +284,13 @@
   <button id="postUpload">POST</button>
   <br>
 
-  <div class="camera">
+  <div id="camera">
     <canvas id="canvas" width="1000" height="750" ></canvas>
-    <img id="startbutton" src="../images/photograph_icon.png" width="50" height="50">
-    <!-- <button id="startbutton">Prendre une photo</button> -->
+    <img id="takePicBtn" src="../images/photograph_icon.png" width="50" height="50">
+  </div>
+
+  <div class="output">
+    <img id="photo" alt="L'image capturée apparaîtra ici.">
   </div>
 </body>
 
