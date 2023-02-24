@@ -231,6 +231,7 @@
 <html>
 
 <head>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     #inputImg {
       display: none;
@@ -257,7 +258,7 @@
     }
 
     #takePicBtn:hover {
-      background-color: gold;
+      background-color: red;
     }
 
     #camera {
@@ -267,7 +268,7 @@
 
     #canvas {
       border-radius: 10%;
-      border: 10px solid red;
+      border: 10px solid black;
     }
   </style>
   <link rel="icon" type="image/x-icon" href="../images/ico.png">
@@ -281,8 +282,6 @@
   <input id="input" type='file' accept="image/jpeg, image/png, image/jpg" />
   <img id="inputImg" src="" />
   <hr>
-  <button id="postUpload">POST</button>
-  <br>
 
   <div id="camera">
     <canvas id="canvas" width="1000" height="750" ></canvas>
