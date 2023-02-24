@@ -1,4 +1,3 @@
-
 var canvas;
 var context
 var video;
@@ -10,18 +9,26 @@ var resizeIco = new Image();
 resizeIco.src = "../images/resize_icon.png";
 var deleteIco = new Image();
 deleteIco.src = "../images/delete_icon.png";
-var rotateIco = new Image();
-rotateIco.src = "../images/rotate_icon.png";
+
 var startX = 0;
 var startY = 0;
 let imgId = 1;
-const iconSize = 30;
 var pic = [];
-
 var pause = false;
+const iconSize = 30;
 const playIconPath = "../images/play_icon.png";
 const pauseIconPath = "../images/pause_icon.png";
 
+document.addEventListener("DOMContentLoaded", function(event) { 
+	getPartial('navbar', '../components/navbar.html');
+});
+
+function getPartial(div, path)
+{
+	fetch(path)
+		.then(function(response) {return response.text()})
+		.then(function(body) {document.querySelector(`#${div}`).innerHTML = body;});
+}
 
 window.onload = function () {
   canvas = document.getElementById("canvas");
@@ -72,7 +79,8 @@ function resetCanvas() {
   context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-function keyEventHandler() {
+function keyEventHandler()
+{
   document.querySelector('body').addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
       unselectAll();
@@ -96,14 +104,16 @@ function changePlayerVideoStatus(pause)
 {
   var css;
   playerBtn.style.backgroundColor = "";
-  if (pause) {
+  if (pause)
+  {
     playerBtn.src = playIconPath;
     playerBtn.style.border = "5px solid #03f517"
     css = '#playerBtn:hover{ background-color: #03f517;}'
     playerBtn.cssText = css;
     video.pause();
   }
-  else {
+  else
+  {
     playerBtn.src = pauseIconPath;
     playerBtn.style.backgroundColor = "";
     playerBtn.style.border = "5px solid #f3ac06"
@@ -113,7 +123,8 @@ function changePlayerVideoStatus(pause)
   } 
 }
 
-function mouseEventHandler() {
+function mouseEventHandler()
+{
   canvas.onmousedown = function (e) {
     var mouseX = e.pageX - this.offsetLeft;
     var mouseY = e.pageY - this.offsetTop;
@@ -180,14 +191,17 @@ function mouseEventHandler() {
   };
 }
 
-function drawCanvas() {
-  for (let data of pic) {
+function drawCanvas()
+{
+  for (let data of pic)
+  {
     if (!data.toRemove)
       context.drawImage(data.img, (data.currentX - (data.img.width / 2)), (data.currentY - (data.img.height / 2)), data.img.width, data.img.height);
     else
       continue;
 
-    if (data.isSelected) {
+    if (data.isSelected)
+    {
       context.beginPath();
       context.rect(data.currentX - (data.img.width / 2), data.currentY - (data.img.height / 2), data.img.width, data.img.height);
       context.stroke();
@@ -201,7 +215,8 @@ function drawCanvas() {
   }
 }
 
-function addImg(path) {
+function addImg(path)
+{
   var newImg = new Image();
   newImg.src = path;
   newImg.width = (!newImg.width || newImg.width > canvas.width) ? canvas.width / 3 : newImg.width;
@@ -221,14 +236,16 @@ function addImg(path) {
   pic.push(data);
 }
 
-function deleteImg() {
+function deleteImg()
+{
   for (var i = pic.length - 1; -1 < i; i--) {
     if (pic[i].toRemove)
       ;// delete pic[i];
   }
 }
 
-function setForeground() {
+function setForeground()
+{
   for (data of pic) {
     if (data.foreground) {
       //   console.log("PIC =>");
@@ -237,7 +254,8 @@ function setForeground() {
     }
   }
 
-  for (var i = pic.length - 1; -1 < i; i--) {
+  for (var i = pic.length - 1; -1 < i; i--)
+  {
     if (pic[i] && pic[i].foreground) {
       pic[i].foreground = false;
 
@@ -254,12 +272,14 @@ function setForeground() {
   }
 }
 
-function unselectAll() {
+function unselectAll()
+{
   for (data of pic)
     data.isSelected = false;
 }
 
-function loadImg() {
+function loadImg()
+{
   if (this.files && this.files[0]) {
     var img = document.querySelector('#inputImg');
     img.onload = () => {
@@ -271,7 +291,8 @@ function loadImg() {
   }
 }
 
-function isInZone(mouseX, mouseY, x, y, width, height) {
+function isInZone(mouseX, mouseY, x, y, width, height)
+{
   return (mouseX >= x
     && mouseX <= x + width
     && mouseY >= y
@@ -279,8 +300,8 @@ function isInZone(mouseX, mouseY, x, y, width, height) {
   )
 }
 
-async function takepicture() {
-
+async function takepicture()
+{
   canvas.style.border = "10px solid red"
   takePicBtn.style.backgroundColor = "red";
   const data = canvas.toDataURL("image/png");
@@ -297,7 +318,8 @@ async function takepicture() {
 }
 
 
-function postUpload(blob) {
+function postUpload(blob)
+{
   if (!blob) {
     console.error("no blob loaded")
     return;
@@ -329,11 +351,13 @@ function postUpload(blob) {
     });
 }
 
-function sleep(ms) {
+function sleep(ms)
+{
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function addImage() {
+function addImage()
+{
   context.drawImage(video, 0, 0, 1000, 750);
   drawCanvas();
 }

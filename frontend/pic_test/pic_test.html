@@ -246,7 +246,7 @@
       /* padding: 20px; */
     }
 
-    #takePicBtn{
+    #takePicBtn {
       float: right;
       border: 5px solid rgba(230, 14, 108, 0.7);
     }
@@ -255,13 +255,13 @@
       background-color: red;
     }
 
-    #playerBtn{
+    #playerBtn {
       float: left;
       border: 5px solid #f3ac06;
       /* border: 5px solid #03f517; */
     }
 
-    #playerBtn:hover{
+    #playerBtn:hover {
       /* background-color: #f3ac06; */
     }
 
@@ -281,7 +281,7 @@
       padding: 10px;
       bottom: 32px;
       background-color: rgb(255, 255, 255);
-    
+
       border-radius: 50%;
       /* box-shadow: 0px 0px 1px 2px rgba(0, 0, 0, 0.2); */
       font-size: 14px;
@@ -290,8 +290,8 @@
     }
 
     #camera {
-      width: 1000px;
-      display: inline-block;
+      /* width: 1000px;
+      display: inline-block; */
     }
 
     #canvas {
@@ -304,27 +304,30 @@
 </head>
 
 <body>
+  <div id="navbar"></div>
   <video id="video" width="320" height="240" autoplay></video>
-
   <input id="input" type='file' accept="image/jpeg, image/png, image/jpg" />
   <img id="inputImg" src="" />
-  <hr>
+  <br>
 
-  <div id="camera">
+  <div class="flex items-center justify-center" id="camera">
     <canvas id="canvas" width="1000" height="750"></canvas>
-    <div class="float-container">
-      <div class="float-child">
-        <img class="picBtn" id="takePicBtn" src="../images/photograph_icon.png" width="50" height="50">
-      </div>
-      <div class="float-child">
-        <img class="picBtn" id="playerBtn" src="../images/pause_icon.png" width="50" height="50">
-      </div>
+    <br>
+    <div class="output">
+      <img id="photo">
     </div>
   </div>
 
-  <div class="output">
-    <img id="photo" alt="L'image capturée apparaîtra ici.">
+  <div class="float-container ">
+    <div class="float-child">
+      <img class="picBtn" id="takePicBtn" src="../images/photograph_icon.png" width="50" height="50">
+    </div>
+    <div class="float-child">
+      <img class="picBtn" id="playerBtn" src="../images/pause_icon.png" width="50" height="50">
+    </div>
   </div>
+
+
 </body>
 
 </html>
