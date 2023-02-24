@@ -4,6 +4,7 @@ var context
 var video;
 var inputBtn;
 var takePicBtn;
+var playerBtn;
 
 var resizeIco = new Image();
 resizeIco.src = "../images/resize_icon.png";
@@ -17,6 +18,10 @@ let imgId = 1;
 const iconSize = 30;
 var pic = [];
 
+var pause = false;
+const playIconPath = "../images/play_icon.png";
+const pauseIconPath = "../images/pause_icon.png";
+
 
 window.onload = function () {
   canvas = document.getElementById("canvas");
@@ -24,6 +29,7 @@ window.onload = function () {
   video = document.getElementById("video");
   inputBtn = document.querySelector('#input');
   takePicBtn = document.querySelector('#takePicBtn');
+  playerBtn = document.querySelector('#playerBtn');
   run();
 };
 
@@ -32,6 +38,12 @@ function run() {
   keyEventHandler();
 
   inputBtn.addEventListener('change', loadImg);
+
+  playerBtn.addEventListener("click", async (ev) => {
+    pause = !pause;
+    changePlayerVideoStatus(pause)
+    ev.preventDefault();
+  }, false)
 
   takePicBtn.addEventListener("click", async (ev) => {
     unselectAll();
@@ -70,6 +82,35 @@ function keyEventHandler() {
       event.preventDefault();
     }
   });
+
+  document.body.onkeyup = function (event) {
+    if (event.code == "Space") {
+      event.preventDefault();
+      pause = !pause;
+      changePlayerVideoStatus(pause)
+    } 
+  };
+}
+
+function changePlayerVideoStatus(pause)
+{
+  var css;
+  playerBtn.style.backgroundColor = "";
+  if (pause) {
+    playerBtn.src = playIconPath;
+    playerBtn.style.border = "5px solid #03f517"
+    css = '#playerBtn:hover{ background-color: #03f517;}'
+    playerBtn.cssText = css;
+    video.pause();
+  }
+  else {
+    playerBtn.src = pauseIconPath;
+    playerBtn.style.backgroundColor = "";
+    playerBtn.style.border = "5px solid #f3ac06"
+    css = '#playerBtn:hover{ background-color: #f3ac06; }'
+    playerBtn.cssText = css;
+    video.play();
+  } 
 }
 
 function mouseEventHandler() {
