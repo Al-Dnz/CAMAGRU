@@ -6,7 +6,6 @@ require 'securerandom'
 require 'pg'
 require 'dotenv'
 require 'base64'
-
 require_relative './server_util.rb'
 require_relative './request_util.rb'
 
@@ -19,7 +18,7 @@ mode = ["DEV", "PROD"].include?(ARGV[0].upcase) ? ARGV[0].upcase : "PROD"
 
 if mode == "DEV"
 #DEV
-	conn = PG::Connection.new(:host =>  'localhost', :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
+	conn = PG::Connection.new(:host =>  'localhost' , :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
 	puts "server launched on http://#{ENV["HOST"]}:#{port}"
 elsif mode == "PROD"
 #PROD
@@ -30,32 +29,17 @@ elsif mode == "PROD"
 	console.puts "server launched on http://#{ENV["HOST"]}:#{port}"
 end
 
-def not_found_response(method_token, target)
-	response = Response.new
-	response.status_code = "404 NOT_FOUND"
-	response.message = "no route #{method_token} with the URL #{target}"
-	response.content_type = "text/plain"
-	return response
-end
-
-def forbidden_reponse(method_token, target, error)
-	response = Response.new
-	response.status_code = "403 FORBIDDEN"
-	response.message = JSON.generate({error: "#{error}"})
-	return response
-end
-
 i = 1
 loop do
 	client = server.accept
+	client_ip = client.peeraddr[2]
 	request_line = client.readline
 	method_token, target, version_number = request_line.split
 	response = Response.new
 
 	# Switch on HTTP request
-	case [method_token, target.split('/')[1]]
+	case [method_token, target.split('/')[1]]	
 		when ["GET", "data"]
-			response.status_code = "200 OK"
 			data = []
 			conn.exec( "SELECT * FROM \"user\"" ) do |result|
 				result.each do |row|
@@ -64,6 +48,7 @@ loop do
 					data << hash
 				end
 			end
+			response.status_code = "200 OK"
 			response.message = JSON.generate(data)
 		when ["POST", "register"]
 			all_headers = get_headers(client)
@@ -78,21 +63,46 @@ loop do
 				hash = check_dto(hash, dto_hash)
 				
 				if hash.is_a?(String)
-					response.status_code = "403 FORBIDDEN"
-					response.message = JSON.generate({error: hash})
-					# response.content_type = "text/plain"
+					response = forbidden_reponse(method_token, target, hash)
 				else
 					if exist_by_value?('email', hash["email"], "user", conn)
-						response.status_code = "403 FORBIDDEN"
-						response.message = JSON.generate({error: "this email is already registered in database"})
+						response = forbidden_reponse(method_token, target, "this email is already registered in database")
 					elsif exist_by_value?('login', hash["login"], "user", conn)
-						response.status_code = "403 FORBIDDEN"
-						response.message = JSON.generate({error: "this login is already registered in database"})
+						response = forbidden_reponse(method_token, target, "this login is already registered in database")
 					else
 						hash["subscription_code"] = SecureRandom.uuid
 						db_insert_request(conn, hash, "user")
 						response.status_code  = "201 Created"
 						response.message = JSON.generate(hash)
+					end
+				end
+			rescue JSON::ParserError
+				response.status_code = "403 FORBIDDEN"
+				response.message = JSON.generate({error: "JSON parsing error"})
+			end
+		when ["POST", "connect"]
+			all_headers = get_headers(client)
+			body = client.read(all_headers['Content-Length'].to_i)
+			begin
+				hash = JSON.parse body.gsub('=>', ':')
+				dto_hash = {}
+				dto_hash["login"] = {type: String, length: [1, -1]}
+				dto_hash["password"] = {type: String, length: [1, -1]}
+				hash = check_dto(hash, dto_hash)
+				if hash.is_a?(String)
+					response = forbidden_reponse(method_token, target, hash)
+				else
+					found = exist_by_value?("login",  hash["login"], "user", conn)
+					if found
+						user = find_by_value("login",  hash["login"], "user", conn)
+						if user["password"] == hash["password"]  
+							response.status_code = "200 OK"
+							response.message = JSON.generate({:token => user["token"]})
+						else
+							response = forbidden_reponse(method_token, target, "wrong password")
+						end
+					else
+						response = forbidden_reponse(method_token, target, "user not found")
 					end
 				end
 			rescue JSON::ParserError
@@ -110,6 +120,9 @@ loop do
 				to_change = {"column"=>"validated", "value"=>"true"}
 				update_by_value(conn, to_find, to_change)
 				to_change = {"column"=>"subscription_code", "value"=>""}
+				update_by_value(conn, to_find, to_change)
+				token = "#{id}.#{SecureRandom.uuid.split('-').join()}"
+				to_change = {"column"=>"token", "value"=>token}
 				update_by_value(conn, to_find, to_change)
 				hash = find_by_value("id", id, "user", conn)
 				response.status_code  = "201 Created"
@@ -136,9 +149,9 @@ loop do
 	end
 
 	if (mode == "DEV")
-		puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
+		puts "[#{Time.now.utc}][#{client_ip}][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
 	else
-		console.puts "[`#{Time.now.utc}`][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
+		console.puts "[#{Time.now.utc}][#{client_ip}][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
 	end
 
  	# Construct the HTTP Response

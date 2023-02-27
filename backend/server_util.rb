@@ -32,3 +32,18 @@ def get_headers(client)
 	end
 	return all_headers
 end
+
+def not_found_response(method_token, target)
+	response = Response.new
+	response.status_code = "404 NOT_FOUND"
+	response.message = "no route #{method_token} with the URL #{target}"
+	response.content_type = "text/plain"
+	return response
+end
+
+def forbidden_reponse(method_token, target, error)
+	response = Response.new
+	response.status_code = "403 FORBIDDEN"
+	response.message = JSON.generate({error: "#{error}"})
+	return response
+end

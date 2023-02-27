@@ -15,4 +15,4 @@ RUN bundle install
 
 EXPOSE 1337
 
-CMD [ "ruby", "server.rb" ]
+CMD [ "ruby", "server.rb", "PROD" ]
