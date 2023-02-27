@@ -5,6 +5,9 @@ DB_NAME = camagrudb
 
 all: up
 
+ip:
+	$(shell echo ipconfig getifaddr en1)
+
 local:
 	sed -i '' "s/localhost/$(LOCAL_IP)/g" $(ENV_FILE)
 
