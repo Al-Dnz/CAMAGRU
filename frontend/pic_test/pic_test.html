@@ -26,167 +26,308 @@
 </html>  -->
 
 
+
+
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>drop and Drag</title>
+  <style>
+    #canvas {
+      position: absolute;
+      left: 100px;
+      top: 100px;
+      border: 1px solid red;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas" width="500" height="500"></canvas>
+  <script>
+    // get canvas related references
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const BB = canvas.getBoundingClientRect();
+    const offsetX = BB.left;
+    const offsetY = BB.top;
+    const WIDTH = canvas.width;
+    const HEIGHT = canvas.height;
+
+    // drag related variables
+    let dragok = false;
+    let startX;
+    let startY;
+
+    // an array of objects that define different shapes
+    const shapes = [];
+    // define 2 rectangles
+    shapes.push({
+      x: 10,
+      y: 100,
+      width: 30,
+      height: 30,
+      fill: "#444444",
+      isDragging: false
+    });
+    shapes.push({
+      x: 80,
+      y: 100,
+      width: 30,
+      height: 30,
+      fill: "#ff550d",
+      isDragging: false
+    });
+
+    // listen for mouse events
+    canvas.onmousedown = myDown;
+    canvas.onmouseup = myUp;
+    canvas.onmousemove = myMove;
+
+    // call to draw the scene
+    draw();
+
+    // draw a single rect
+    function rect(r) {
+      ctx.fillStyle = r.fill;
+      ctx.fillRect(r.x, r.y, r.width, r.height);
+    }
+
+    // draw a single rect
+    function circle(c) {
+      ctx.fillStyle = c.fill;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // clear the canvas
+    function clear() {
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    }
+
+    // redraw the scene
+    function draw() {
+      clear();
+      // redraw each shape in the shapes[] array
+      for (let i = 0; i < shapes.length; i++) {
+        // decide if the shape is a rect or circle
+        // (it's a rect if it has a width property)
+        if (shapes[i].width) {
+          rect(shapes[i]);
+        } else {
+          circle(shapes[i]);
+        }
+      }
+    }
+
+    // handle mousedown events
+    function myDown(e) {
+      // tell the browser we're handling this mouse event
+      e.preventDefault();
+      e.stopPropagation();
+
+      // get the current mouse position
+      const mx = parseInt(e.clientX - offsetX);
+      const my = parseInt(e.clientY - offsetY);
+
+      // test each shape to see if mouse is inside
+      dragok = false;
+      for (let i = 0; i < shapes.length; i++) {
+        var s = shapes[i];
+        // decide if the shape is a rect or circle
+        if (s.width) {
+          // test if the mouse is inside this rect
+          if (
+            !dragok &&
+            mx > s.x &&
+            mx < s.x + s.width &&
+            my > s.y &&
+            my < s.y + s.height
+          ) {
+            // if yes, set that rects isDragging=true
+            dragok = true;
+            s.isDragging = true;
+          }
+        } else {
+          const dx = s.x - mx;
+          const dy = s.y - my;
+          // test if the mouse is inside this circle
+          if (!dragok && dx * dx + dy * dy < s.r * s.r) {
+            dragok = true;
+            s.isDragging = true;
+          }
+        }
+      }
+      // save the current mouse position
+      startX = mx;
+      startY = my;
+    }
+
+    // handle mouseup events
+    function myUp(e) {
+      // tell the browser we're handling this mouse event
+      e.preventDefault();
+      e.stopPropagation();
+
+      // clear all the dragging flags
+      dragok = false;
+      for (let i = 0; i < shapes.length; i++) {
+        shapes[i].isDragging = false;
+      }
+    }
+
+    // handle mouse moves
+    function myMove(e) {
+      // if we're dragging anything...
+      if (dragok) {
+        // tell the browser we're handling this mouse event
+        e.preventDefault();
+        e.stopPropagation();
+
+        // get the current mouse position
+        const mx = parseInt(e.clientX - offsetX);
+        const my = parseInt(e.clientY - offsetY);
+
+        // calculate the distance the mouse has moved
+        // since the last mousemove
+        const dx = mx - startX;
+        const dy = my - startY;
+
+        // move each rect that isDragging
+        // by the distance the mouse has moved
+        // since the last mousemove
+        for (let i = 0; i < shapes.length; i++) {
+          const s = shapes[i];
+          if (s.isDragging) {
+            s.x += dx;
+            s.y += dy;
+          }
+        }
+
+        // redraw the scene with the new rect positions
+        draw();
+
+        // reset the starting mouse position for the next mousemove
+        startX = mx;
+        startY = my;
+      }
+    }
+
+
+  </script>
+</body>
+
+</html> -->
+
+
+
+<!-- // good for you sir ! -->
+
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Drag and Move 2</title>
-  </head>
-  <body>
-    <canvas id="canvas" width="400" height="400"></canvas>
-    <aside>Press and drag circle with mouse.</aside>
-    <script>
 
-		
-class Ball {
-  constructor() {
-    this.x = 0;
-    this.y = 0;
-    this.radius = 30;
-    this.vx = 0;
-    this.vy = 0;
-    this.rotation = 0;
-    this.scaleX = 1;
-    this.scaleY = 1;
-    this.color = 'blue';
-    this.lineWidth = 1;
-  }
-
-  draw(context) {
-    context.save();
-    context.translate(this.x, this.y);
-    context.rotate(this.rotation);
-    context.scale(this.scaleX, this.scaleY);
-    
-    context.lineWidth = this.lineWidth;
-    context.fillStyle = this.color;
-    context.beginPath();
-    //x, y, radius, start_angle, end_angle, anti-clockwise
-    context.arc(0, 0, this.radius, 0, Math.PI * 2, true);
-    context.closePath();
-    context.fill();
-    if (this.lineWidth > 0) {
-      context.stroke();
+<head>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #inputImg {
+      display: none;
     }
-    context.restore();
-  }
 
-  getBounds() {
-    return {
-      x: this.x - this.radius,
-      y: this.y - this.radius,
-      width: this.radius * 2,
-      height: this.radius * 2
-    };
-  }
-}
-captureMouse = function (element) {
-  var mouse = {x: 0, y: 0, event: null},
-      body_scrollLeft = document.body.scrollLeft,
-      element_scrollLeft = document.documentElement.scrollLeft,
-      body_scrollTop = document.body.scrollTop,
-      element_scrollTop = document.documentElement.scrollTop,
-      offsetLeft = element.offsetLeft,
-      offsetTop = element.offsetTop;
-  
-  element.addEventListener('mousemove', function (event) {
-    var x, y;
-    
-    if (event.pageX || event.pageY) {
-      x = event.pageX;
-      y = event.pageY;
-    } else {
-      x = event.clientX + body_scrollLeft + element_scrollLeft;
-      y = event.clientY + body_scrollTop + element_scrollTop;
+    #video {
+      display: none;
     }
-    x -= offsetLeft;
-    y -= offsetTop;
-    
-    mouse.x = x;
-    mouse.y = y;
-    mouse.event = event;
-  }, false);
-  
-  return mouse;
-};  
-containsPoint = function (rect, x, y) {
-  return !(x < rect.x ||
-           x > rect.x + rect.width ||
-           y < rect.y ||
-           y > rect.y + rect.height);
-};
-    window.onload = function () {
-      var canvas = document.getElementById('canvas'),
-          context = canvas.getContext('2d'),
-          mouse = captureMouse(canvas),
-          ball = new Ball(),
-          vx = Math.random() * 10 - 5,
-          vy = -10,
-          bounce = -0.7,
-          gravity = 0.2,
-          isMouseDown = false;
 
-      ball.x = canvas.width / 2;
-      ball.y = canvas.height / 2;
-      
-      canvas.addEventListener('mousedown', function () {
-        if (containsPoint(ball.getBounds(), mouse.x, mouse.y)) {
-          isMouseDown = true;
-          vx = vy = 0;
-          canvas.addEventListener('mouseup', onMouseUp, false);
-          canvas.addEventListener('mousemove', onMouseMove, false);
-        }
-      }, false);
-      
-      function onMouseUp () {
-        isMouseDown = false;
-        canvas.removeEventListener('mouseup', onMouseUp, false);
-        canvas.removeEventListener('mousemove', onMouseMove, false);
-      }
-      
-      function onMouseMove (event) {
-        ball.x = mouse.x;
-        ball.y = mouse.y;
-      }
+    .float-container {
+      /* border: 3px solid #fff; */
+      /* padding: 20px; */
+    }
 
-      function checkBoundaries () {
-        var left = 0,
-            right = canvas.width,
-            top = 0,
-            bottom = canvas.height;
-        
-        vy += gravity;
-        ball.x += vx;
-        ball.y += vy;
-        //boundary detect and bounce
-        if (ball.x + ball.radius > right) {
-          ball.x = right - ball.radius;
-          vx *= bounce;
-        } else if (ball.x - ball.radius < left) {
-          ball.x = left + ball.radius;
-          vx *= bounce;
-        }
-        if (ball.y + ball.radius > bottom) {
-          ball.y = bottom - ball.radius;
-          vy *= bounce;
-        } else if (ball.y - ball.radius < top) {
-          ball.y = top + ball.radius;
-          vy *= bounce;
-        }
-      }
+    #takePicBtn {
+      float: right;
+      border: 5px solid rgba(230, 14, 108, 0.7);
+    }
 
-      (function drawFrame () {
-        window.requestAnimationFrame(drawFrame, canvas);
-        context.clearRect(0, 0, canvas.width, canvas.height);
+    #takePicBtn:hover {
+      background-color: red;
+    }
 
-        if (!isMouseDown) {
-          checkBoundaries();
-        }
-        ball.draw(context);
-      }());
-    };
-    </script>
-  </body>
+    #playerBtn {
+      float: left;
+      border: 5px solid #f3ac06;
+      /* border: 5px solid #03f517; */
+    }
+
+    #playerBtn:hover {
+      /* background-color: #f3ac06; */
+    }
+
+    .float-child {
+      width: 50%;
+      float: left;
+      /* left: 50px; */
+      /* padding: 10px; */
+      /* border: 2px solid red; */
+    }
+
+    .picBtn {
+      display: block;
+      position: relative;
+      /* margin-left: auto; */
+      /* margin-right: auto;  */
+      padding: 10px;
+      bottom: 32px;
+      background-color: rgb(255, 255, 255);
+
+      border-radius: 50%;
+      /* box-shadow: 0px 0px 1px 2px rgba(0, 0, 0, 0.2); */
+      font-size: 14px;
+      font-family: "Lucida Grande", "Arial", sans-serif;
+      color: rgba(255, 255, 255, 1);
+    }
+
+    #camera {
+      /* width: 1000px;
+      display: inline-block; */
+    }
+
+    #canvas {
+      border-radius: 10%;
+      border: 10px solid black;
+    }
+  </style>
+  <link rel="icon" type="image/x-icon" href="../images/ico.png">
+  <script src="pic_test.js"></script>
+</head>
+
+<body>
+  <div id="navbar"></div>
+  <video id="video" width="320" height="240" autoplay></video>
+  <input id="input" type='file' accept="image/jpeg, image/png, image/jpg" />
+  <img id="inputImg" src="" />
+  <br>
+
+  <div class="flex items-center justify-center" id="camera">
+    <canvas id="canvas" width="1000" height="750"></canvas>
+    <br>
+    <div class="output">
+      <img id="photo">
+    </div>
+  </div>
+
+  <div class="float-container ">
+    <div class="float-child">
+      <img class="picBtn" id="takePicBtn" src="../images/photograph_icon.png" width="50" height="50">
+    </div>
+    <div class="float-child">
+      <img class="picBtn" id="playerBtn" src="../images/pause_icon.png" width="50" height="50">
+    </div>
+  </div>
+
+
+</body>
+
 </html>
-
-  
