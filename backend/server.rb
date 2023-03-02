@@ -13,20 +13,21 @@ Dotenv.load("../.env")
 
 port = 1337
 server = TCPServer.new(port)
+host = "#{ENV["HOST"]}"
 
 mode = ["DEV", "PROD"].include?(ARGV[0].upcase) ? ARGV[0].upcase : "PROD"
 
 if mode == "DEV"
 #DEV
 	conn = PG::Connection.new(:host =>  'localhost' , :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
-	puts "server launched on http://#{ENV["HOST"]}:#{port}"
+	puts "server launched on http://#{host}:#{port}"
 elsif mode == "PROD"
 #PROD
 	conn = PG::Connection.new(:host =>  ENV["POSTGRES_HOST"], :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
 	fd = IO.sysopen("/proc/1/fd/1", "w")
 	console = IO.new(fd,"w")
 	console.sync = true
-	console.puts "server launched on http://#{ENV["HOST"]}:#{port}"
+	console.puts "server launched on http://#{host}:#{port}"
 end
 
 i = 1
@@ -41,7 +42,7 @@ loop do
 	case [method_token, target.split('/')[1]]	
 		when ["GET", "data"]
 			data = []
-			conn.exec( "SELECT * FROM \"user\"" ) do |result|
+			conn.exec( "SELECT * FROM \"users\"" ) do |result|
 				result.each do |row|
 					hash = {}
 					row.keys().each {|key| hash[key] = row.values_at(key).first}
@@ -65,13 +66,13 @@ loop do
 				if hash.is_a?(String)
 					response = forbidden_reponse(method_token, target, hash)
 				else
-					if exist_by_value?('email', hash["email"], "user", conn)
+					if exist_by_value?('email', hash["email"], "users", conn)
 						response = forbidden_reponse(method_token, target, "this email is already registered in database")
-					elsif exist_by_value?('login', hash["login"], "user", conn)
+					elsif exist_by_value?('login', hash["login"], "users", conn)
 						response = forbidden_reponse(method_token, target, "this login is already registered in database")
 					else
 						hash["subscription_code"] = SecureRandom.uuid
-						db_insert_request(conn, hash, "user")
+						db_insert_request(conn, hash, "users")
 						response.status_code  = "201 Created"
 						response.message = JSON.generate(hash)
 					end
@@ -92,9 +93,9 @@ loop do
 				if hash.is_a?(String)
 					response = forbidden_reponse(method_token, target, hash)
 				else
-					found = exist_by_value?("login",  hash["login"], "user", conn)
+					found = exist_by_value?("login",  hash["login"], "users", conn)
 					if found
-						user = find_by_value("login",  hash["login"], "user", conn)
+						user = find_by_value("login",  hash["login"], "users", conn)
 						if user["password"] == hash["password"]  
 							response.status_code = "200 OK"
 							response.message = JSON.generate({:token => user["token"]})
@@ -111,12 +112,12 @@ loop do
 			end
 		when ["GET", "confirmation"]
 			subscription_code = target.split('/')[2]
-			if subscription_code == nil || !exist_by_value?('subscription_code', subscription_code, "user", conn) 
+			if subscription_code == nil || !exist_by_value?('subscription_code', subscription_code, "users", conn) 
 				response = not_found_response(method_token, target)
 			else
-				hash = find_by_value("subscription_code", subscription_code, "user", conn)
+				hash = find_by_value("subscription_code", subscription_code, "users", conn)
 				id = hash["id"]
-				to_find = {"table"=>"user", "column"=>"id", "value"=>"#{id}"}
+				to_find = {"table"=>"users", "column"=>"id", "value"=>"#{id}"}
 				to_change = {"column"=>"validated", "value"=>"true"}
 				update_by_value(conn, to_find, to_change)
 				to_change = {"column"=>"subscription_code", "value"=>""}
@@ -124,15 +125,18 @@ loop do
 				token = "#{id}.#{SecureRandom.uuid.split('-').join()}"
 				to_change = {"column"=>"token", "value"=>token}
 				update_by_value(conn, to_find, to_change)
-				hash = find_by_value("id", id, "user", conn)
+				hash = find_by_value("id", id, "users", conn)
 				response.status_code  = "201 Created"
 				response.message = JSON.generate(hash)
 			end
 		when ["POST", "pictures"]
 			all_headers = get_headers(client)
 			body = client.read(all_headers['Content-Length'].to_i)
-			File.open("./upload/blob_#{i}", 'wb') { |f| f.write body }
+			name = "blob_#{i}"
+			File.open("./upload/#{name}", 'wb') { |f| f.write body }
 			i+=1
+			hash = {:path => "http://#{host}/pictures/#{name}", :content=> "yolo", :user_id=> 1}
+			db_insert_request(conn, hash, "pictures")
 			response.status_code  = "201 Created"
 			response.message = JSON.generate({"success"=> "OK"})
 		when ["GET", "pictures"]
