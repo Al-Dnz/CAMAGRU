@@ -1,9 +1,47 @@
 
-document.addEventListener("DOMContentLoaded", function(event) { 
-	getPartial('navbar', './components/navbar.html');
-	getPartial('form', './components/form.html');
-	// getPartial('videoContainer', './video.html');
+document.addEventListener("DOMContentLoaded", async function(event) { 
+	await getPartial('navbar', './components/navbar.html');
+	await getPartial('form', './components/form.html');
+	await getPartial('template', './components/picture_card.html');
+
+	fetch('http://localhost:1337/data')
+	.then((response) => response.json())
+	.then((data) => 
+	{
+		var list =  document.getElementById("dataList")
+		for (let el of data)
+		{			
+			// var item = createDataBox(el);
+			var item = createCard(el);
+			list.appendChild(item);
+			list.appendChild(document.createElement("br"));
+		}
+		return data;
+	})
+	.then((data) => console.log(data))
 });
+
+function createCard(element)
+{
+	// var tempNode = document.querySelector("div[data-type='picture_card_template']").cloneNode(true); //true for deep clone
+	var tempNode = document.querySelector("#templateCard").cloneNode(true); //true for deep clone
+	tempNode.querySelector("img").src =element.path
+	tempNode.querySelector("p").innerHTML = element.content
+	tempNode.style.display = "block";
+	return tempNode;
+}
+
+function createDataBox(element)
+{
+	var newItem = document.createElement("li");
+	var text = "";
+	for (let key of Object.keys(element))
+		text = text + " " + key + "=>" + " " + element[key]
+	var newContent = document.createTextNode(text);
+	newItem.appendChild(newContent);
+	return newItem;
+}
+
 
 function redirectToPicTest()
 {
@@ -22,39 +60,11 @@ function redirectToUpload()
 	window.location.href = 'upload/upload.html';
 }
 
-function getPartial(div, path)
+async function getPartial(div, path)
 {
 	fetch(path)
 		.then(function(response) {return response.text()})
 		.then(function(body) {document.querySelector(`#${div}`).innerHTML = body;});
-}
-
-var c1 = "block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
-
-
-fetch('http://localhost:1337/data')
-	.then((response) => response.json())
-	.then((data) => 
-	{
-		var list =  document.getElementById("dataList")
-		for (let el of data)
-		{
-			var item = createDataBox(el);
-			list.appendChild(item);
-		}
-		return data;
-	})
-	.then((data) => console.log(data))
-	
-function createDataBox(element)
-{
-	var newItem = document.createElement("li");
-	var text = "";
-	for (let key of Object.keys(element))
-		text = text + " " + key + "=>" + " " + element[key]
-	var newContent = document.createTextNode(text);
-	newItem.appendChild(newContent);
-	return newItem;
 }
 
 
