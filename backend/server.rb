@@ -42,7 +42,7 @@ loop do
 	case [method_token, target.split('/')[1]]	
 		when ["GET", "data"]
 			data = []
-			conn.exec( "SELECT * FROM \"users\"" ) do |result|
+			conn.exec( "SELECT * FROM \"pictures\"" ) do |result|
 				result.each do |row|
 					hash = {}
 					row.keys().each {|key| hash[key] = row.values_at(key).first}
@@ -135,7 +135,7 @@ loop do
 			name = "blob_#{i}"
 			File.open("./upload/#{name}", 'wb') { |f| f.write body }
 			i+=1
-			hash = {:path => "http://#{host}/pictures/#{name}", :content=> "yolo", :user_id=> 1}
+			hash = {:path => "http://#{host}:#{port}/pictures/#{name}", :content=> "yolo", :user_id=> 1}
 			db_insert_request(conn, hash, "pictures")
 			response.status_code  = "201 Created"
 			response.message = JSON.generate({"success"=> "OK"})
