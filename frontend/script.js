@@ -1,6 +1,6 @@
 import getCookie  from './config.js';
+import createCard  from './components/picture	Card.js';
 
-(async () => {
 document.addEventListener("DOMContentLoaded", async function(event) { 
 	if (getCookie("token") == "")
 		redirectToConnectPage();
@@ -26,32 +26,6 @@ document.addEventListener("DOMContentLoaded", async function(event) {
 	.then((data) => console.log(data))
 });
 
-// function getCookie(cname) {
-// 	let name = cname + "=";
-// 	let decodedCookie = decodeURIComponent(document.cookie);
-// 	let ca = decodedCookie.split(';');
-// 	for(let i = 0; i <ca.length; i++) {
-// 	  let c = ca[i];
-// 	  while (c.charAt(0) == ' ') {
-// 		c = c.substring(1);
-// 	  }
-// 	  if (c.indexOf(name) == 0) {
-// 		return c.substring(name.length, c.length);
-// 	  }
-// 	}
-// 	return "";
-//   }
-
-function createCard(element)
-{
-	// var tempNode = document.querySelector("div[data-type='picture_card_template']").cloneNode(true); //true for deep clone
-	var tempNode = document.querySelector("#templateCard").cloneNode(true); //true for deep clone
-	tempNode.querySelector("img").src =element.path
-	tempNode.querySelector("p").innerHTML = element.content
-	tempNode.style.display = "block";
-	return tempNode;
-}
-
 function createDataBox(element)
 {
 	var newItem = document.createElement("li");
@@ -62,7 +36,6 @@ function createDataBox(element)
 	newItem.appendChild(newContent);
 	return newItem;
 }
-
 
 function redirectToPicTest()
 {
@@ -87,10 +60,12 @@ function redirectToConnectPage()
 	return false;
 }
 
+document.getElementById("picTestBtn").addEventListener("click", () => window.location.href = 'pic_test/pic_test.html');
+
 async function getPartial(div, path)
 {
 	fetch(path)
 		.then(function(response) {return response.text()})
 		.then(function(body) {document.querySelector(`#${div}`).innerHTML = body;});
 }
-})()
+
