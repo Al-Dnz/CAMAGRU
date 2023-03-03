@@ -1,5 +1,10 @@
+import getCookie  from './config.js';
 
+(async () => {
 document.addEventListener("DOMContentLoaded", async function(event) { 
+	if (getCookie("token") == "")
+		redirectToConnectPage();
+
 	await getPartial('navbar', './components/navbar.html');
 	await getPartial('form', './components/form.html');
 	await getPartial('template', './components/picture_card.html');
@@ -20,6 +25,22 @@ document.addEventListener("DOMContentLoaded", async function(event) {
 	})
 	.then((data) => console.log(data))
 });
+
+// function getCookie(cname) {
+// 	let name = cname + "=";
+// 	let decodedCookie = decodeURIComponent(document.cookie);
+// 	let ca = decodedCookie.split(';');
+// 	for(let i = 0; i <ca.length; i++) {
+// 	  let c = ca[i];
+// 	  while (c.charAt(0) == ' ') {
+// 		c = c.substring(1);
+// 	  }
+// 	  if (c.indexOf(name) == 0) {
+// 		return c.substring(name.length, c.length);
+// 	  }
+// 	}
+// 	return "";
+//   }
 
 function createCard(element)
 {
@@ -60,50 +81,16 @@ function redirectToUpload()
 	window.location.href = 'upload/upload.html';
 }
 
+function redirectToConnectPage()
+{
+	window.location.href = 'connect.html';
+	return false;
+}
+
 async function getPartial(div, path)
 {
 	fetch(path)
 		.then(function(response) {return response.text()})
 		.then(function(body) {document.querySelector(`#${div}`).innerHTML = body;});
 }
-
-
-// function send()
-// {
-// 	var login = document.getElementById("login");
-// 	var password = document.getElementById("password");
-// 	var email = document.getElementById("email");
-
-// 	data = 
-// 	{
-// 		login: login.value,
-// 		password: password.value,
-// 		email: email.value
-// 	}
-
-// 	// console.log(email + last_name + name);
-// 	fetch('http://0.0.0.0:1337/register', {
-// 		method: 'POST',
-// 		headers: {
-// 			// 'Content-Type': 'application/json',
-// 		},
-// 		body: JSON.stringify(data),
-// 	})
-// 	.then((response) => {
-// 		if (response.ok)
-// 			 return response.json();
-// 		else
-// 			return Promise.reject(response.json()); 
-// 	  })
-// 	.then((data) => {
-// 		console.log('success:', data);
-// 		login.value = "";
-// 		password.value = "";
-// 		email.value  = "";
-// 	})
-// 	.catch(async (error) => {
-// 		data = await error;
-// 		console.error('error:', data.error);
-		 
-// 	});
-// }
+})()
