@@ -56,3 +56,15 @@ end
 def update_by_value(conn, to_find, to_change)
 	res =  conn.exec("UPDATE \"#{to_find["table"]}\" SET #{to_change["column"]}= '#{to_change["value"]}' WHERE #{to_find["column"]} = '#{to_find["value"]}'")
 end
+
+def get_table_datas(conn, table)
+	data = []
+	conn.exec( "SELECT * FROM \"#{table}\"" ) do |result|
+		result.each do |row|
+			hash = {}
+			row.keys().each {|key| hash[key] = row.values_at(key).first}
+			data << hash
+		end
+	end
+	return JSON.generate(data)
+end

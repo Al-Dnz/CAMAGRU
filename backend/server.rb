@@ -41,16 +41,17 @@ loop do
 	# Switch on HTTP request
 	case [method_token, target.split('/')[1]]	
 		when ["GET", "data"]
-			data = []
-			conn.exec( "SELECT * FROM \"pictures\"" ) do |result|
-				result.each do |row|
-					hash = {}
-					row.keys().each {|key| hash[key] = row.values_at(key).first}
-					data << hash
-				end
-			end
+			# data = []
+			# conn.exec( "SELECT * FROM \"pictures\"" ) do |result|
+			# 	result.each do |row|
+			# 		hash = {}
+			# 		row.keys().each {|key| hash[key] = row.values_at(key).first}
+			# 		data << hash
+			# 	end
+			# end
 			response.status_code = "200 OK"
-			response.message = JSON.generate(data)
+			# response.message = JSON.generate(data)
+			response.message = get_table_datas(conn, "pictures")
 		when ["POST", "register"]
 			all_headers = get_headers(client)
 			body = client.read(all_headers['Content-Length'].to_i)
@@ -141,12 +142,16 @@ loop do
 			response.message = JSON.generate({"success"=> "OK"})
 		when ["GET", "pictures"]
 			pic_id = target.split('/')[2]
-			if !File.exist?("./upload/#{pic_id}")
+			if pic_id == nil
 				response = not_found_response(method_token, target)
 			else
-				File.open("./upload/#{pic_id}", 'r') { |f| response.message << f.read }
-				response.status_code = "200 OK"
-				response.content_type = "image/png"
+				if !File.exist?("./upload/#{pic_id}")
+					response = not_found_response(method_token, target)
+				else
+					File.open("./upload/#{pic_id}", 'r') { |f| response.message << f.read }
+					response.status_code = "200 OK"
+					response.content_type = "image/png"
+				end
 			end
 		else
 			response = not_found_response(method_token, target)
