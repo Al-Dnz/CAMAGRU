@@ -1,5 +1,5 @@
 import getCookie  from './config.js';
-import createCard  from './components/picture	Card.js';
+import createCard  from './components/pictureCard.js';
 
 document.addEventListener("DOMContentLoaded", async function(event) { 
 	if (getCookie("token") == "")
