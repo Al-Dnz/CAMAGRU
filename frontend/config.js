@@ -4,7 +4,7 @@ async function getHost(path) {
 		.then((response) => response.json())
 		.then((data) => { host = data.host })
 	return host;
-}
+};
 
 function getCookie(cname) {
 	let name = cname + "=";
@@ -20,9 +20,9 @@ function getCookie(cname) {
 		}
 	}
 	return "";
-}
+};
 
-export { getHost, getCookie as default };
+export { getHost, getCookie };
 
 
 

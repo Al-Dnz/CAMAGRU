@@ -1,4 +1,5 @@
-import getHost from '../config.js';
+import { getHost, getCookie, coucou } from '../config.js';
+// import coucou from '../config.js';
 
 (async () => {
   // La largeur et la hauteur de la photo capturée. On utilisera
@@ -23,6 +24,14 @@ import getHost from '../config.js';
   let postUploadBtn = null
   let varBlob = null; 
   let host =null;
+
+  // async function getHost(path) {
+  //   let host;
+  //   await fetch(path)
+  //     .then((response) => response.json())
+  //     .then((data) => { host = data.host })
+  //   return host;
+  // }
 
 
   function showViewLiveResultButton() {
@@ -50,8 +59,8 @@ import getHost from '../config.js';
     startbutton = document.getElementById("startbutton");
 	postUploadBtn = document.getElementById("postUpload")
 	host = await getHost("../config.json");
+  console.log("CAMHOST=> "+ host);
 	
-
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: false })
       .then((stream) => {

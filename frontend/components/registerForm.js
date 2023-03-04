@@ -1,17 +1,21 @@
+import { getHost } from "../config.js";
+
+const host = await getHost('../config.json')
+
 function send()
 {
-	var login = document.getElementById("login");
-	var password = document.getElementById("password");
-	var email = document.getElementById("email");
+	const login = document.getElementById("login");
+	const password = document.getElementById("password");
+	const email = document.getElementById("email");
 
-	data = 
+	let data = 
 	{
 		login: login.value,
 		password: password.value,
 		email: email.value
 	}
 
-	fetch('http://0.0.0.0:1337/register', {
+	fetch(`http://${host}:1337/register`, {
 		method: 'POST',
 		headers: {
 			// 'Content-Type': 'application/json',
@@ -35,3 +39,5 @@ function send()
 		console.error('error:', data.error); 
 	});
 }
+
+document.getElementById("registerBtn").addEventListener("click",() => {send()});

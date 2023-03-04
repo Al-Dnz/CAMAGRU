@@ -1,15 +1,19 @@
+import { getHost } from "../config.js";
+
+const host = await getHost('../config.json')
+
 function send()
 {
-	var login = document.getElementById("login");
-	var password = document.getElementById("password");
+	const login = document.getElementById("login");
+	const password = document.getElementById("password");
 
-	data = 
+	let data = 
 	{
 		login: login.value,
 		password: password.value,
 	}
 
-	fetch('http://0.0.0.0:1337/connect', {
+	fetch(`http://${host}:1337/connect`, {
 		method: 'POST',
 		headers: {
 			// 'Content-Type': 'application/json',
@@ -35,3 +39,5 @@ function send()
 		console.error('error:', data.error); 
 	});
 }
+
+document.getElementById("connectBtn").addEventListener("click",() => {send()});
