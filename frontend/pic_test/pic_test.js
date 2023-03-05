@@ -1,3 +1,7 @@
+import { setNavbar } from '../components/navbar.js';
+import { getHost, getCookie, getPartial } from '../config.js';
+
+
 var canvas;
 var context
 var video;
@@ -19,16 +23,10 @@ const iconSize = 30;
 const playIconPath = "../images/play_icon.png";
 const pauseIconPath = "../images/pause_icon.png";
 
-document.addEventListener("DOMContentLoaded", function(event) { 
-	getPartial('navbar', '../components/navbar.html');
+document.addEventListener("DOMContentLoaded", async function(event) { 
+	await getPartial('navbar', '../components/navbar.html')
+  .then(()=> {setNavbar()})
 });
-
-function getPartial(div, path)
-{
-	fetch(path)
-		.then(function(response) {return response.text()})
-		.then(function(body) {document.querySelector(`#${div}`).innerHTML = body;});
-}
 
 window.onload = function () {
   canvas = document.getElementById("canvas");
@@ -305,7 +303,7 @@ async function takepicture()
   canvas.style.border = "10px solid red"
   takePicBtn.style.backgroundColor = "red";
   const data = canvas.toDataURL("image/png");
-  photo.setAttribute("src", data);
+  // photo.setAttribute("src", data);
   const blob = await new Promise(resolve => canvas.toBlob(resolve));
   postUpload(blob);
   await sleep(100);

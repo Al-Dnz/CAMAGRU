@@ -8,48 +8,31 @@
 	
 	<link rel="icon" type="image/x-icon" href="/images/ico.png">
 
-	<script src="./components/registerForm.js"></script>
-
 	<script src="script.js" type="module"></script>
-	<script src="../config.js" type="module"></script>
+	<script src="./config.js" type="module"></script>
+	<script src="./components/navbar.js" type="module"></script>
 </head>
 
-<body>
-	<div id="navbar"></div>
+<body class="flex flex-col min-h-screen">
+	<div id="navbar" class="sticky top-0 z-50"></div>
 
-	<!-- <a href="#" class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-			<p class="font-normal text-gray-700 dark:text-gray-400">hola</p>
-		</a> -->
+	<main class=relative>
+		<br>
+		<ul id="dataList"></ul>
 
-	<!-- <a href="#" class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-			<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Noteworthy technology acquisitions 2021</h5>
-			<p class="font-normal text-gray-700 dark:text-gray-400">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-		</a> -->
+		<!-- <button id="picTestBtn" class="bg-indigo-700 hover:bg-indigo-900 text-white font-medium py-3 px-4 mt-10 rounded focus:outline-none focus:shadow-outline" type="button" onclick="redirectToPicTest()">GO TO PICTEST</button>
+		<button id="camBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="redirectToCamera()">GOTO CAM</button>
+		<button  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="redirectToUpload()">GO TO UPLOAD IMAGE</button>
+		<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="redirectToConnectPage()">GO TO CONNECT PAGE</button> -->
+	</main>
 
-	<ul id="dataList"></ul>
-	<hr>
-
-	<div id="template"></div>
-
-	<hr>
-	<div id="form"></div>
-	<hr>
-	<hr>
-	<button id="picTestBtn" class="bg-indigo-700 hover:bg-indigo-900 text-white font-medium py-3 px-4 mt-10 rounded focus:outline-none focus:shadow-outline" type="button" onclick="redirectToPicTest()">GO TO PICTEST</button>
-	<br><br>
-	<button id="camBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="redirectToCamera()">GO
-		TO CAM</button>
-	<br>
-	<button  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="redirectToUpload()">GO
-		TO UPLOAD IMAGE</button>
-
-	<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="redirectToConnectPage()">GO TO CONNECT PAGE</button>
-
-
-
-	<div id="videoContainer"></div>
-
-
+	<footer class="mt-auto bg-indigo-200 text-center dark:bg-neutral-700 lg:text-left">
+		<div class="p-4 text-center text-neutral-700 dark:text-neutral-200 font-medium">
+			© 2023 Copyright:
+			Made with ❤️ by <b><a class="" href="#">adenhez</a></b>
+			for <img src="./images/42_logo.png" class=" inline h-5 w-5">
+		  </div>  
+	</footer>
 
 </body>
 
