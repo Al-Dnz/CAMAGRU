@@ -22,7 +22,14 @@ function getCookie(cname) {
 	return "";
 };
 
-export { getHost, getCookie };
+async function getPartial(div, path)
+{
+	await fetch(path)
+		.then(function(response) {return response.text()})
+		.then(function(body) {document.querySelector(`#${div}`).innerHTML = body;});
+};
+
+export { getHost, getCookie, getPartial };
 
 
 
