@@ -36,6 +36,7 @@ function send()
 	})
 	.catch(async (error) => {
 		data = await error;
+		window.alert(data.error);
 		console.error('error:', data.error); 
 	});
 }

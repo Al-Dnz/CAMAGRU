@@ -128,7 +128,15 @@ loop do
 				update_by_value(conn, to_find, to_change)
 				hash = find_by_value("id", id, "users", conn)
 				response.status_code  = "201 Created"
-				response.message = JSON.generate(hash)
+				response.content_type = "text/html; charset=utf-8"
+				response.message = "<!DOCTYPE html>
+									<html>
+										<head>
+											<script>
+												window.location.replace(\"http://#{host}/index.html\");
+											</script> 
+										</head>
+									</html>"
 			end
 		when ["POST", "pictures"]
 			all_headers = get_headers(client)
