@@ -158,7 +158,7 @@ function mouseEventHandler()
     var mouseY = (e.pageY - this.offsetTop);
     var dx = mouseX - startX;
     var dy = mouseY - startY;
-    for (data of pic) {
+    for (let data of pic) {
       if (data.isDraggable) {
         data.currentX += dx;
         data.currentY += dy;
@@ -173,7 +173,7 @@ function mouseEventHandler()
   };
 
   canvas.onmouseup = function (e) {
-    for (data of pic) {
+    for (let data of pic) {
       data.isDraggable = false;
       data.toResize = false;
       data.toRotate = false;
@@ -181,7 +181,7 @@ function mouseEventHandler()
   };
 
   canvas.onmouseout = function (e) {
-    for (data of pic) {
+    for (let data of pic) {
       data.isDraggable = false;
       data.toResize = false;
       data.toRotate = false;
@@ -219,7 +219,7 @@ function addImg(path)
   newImg.src = path;
   newImg.width = (!newImg.width || newImg.width > canvas.width) ? canvas.width / 3 : newImg.width;
   newImg.height = (!newImg.height || newImg.height > canvas.height) ? canvas.height / 3 : newImg.height;
-  data = {}
+  let data = {}
   data.id = imgId++;
   data.source = path.slice(0, 25);;
   data.foreground = false;
@@ -236,7 +236,7 @@ function addImg(path)
 
 function deleteImg()
 {
-  for (var i = pic.length - 1; -1 < i; i--) {
+  for (let i = pic.length - 1; -1 < i; i--) {
     if (pic[i].toRemove)
       ;// delete pic[i];
   }
@@ -244,7 +244,7 @@ function deleteImg()
 
 function setForeground()
 {
-  for (data of pic) {
+  for (let data of pic) {
     if (data.foreground) {
       //   console.log("PIC =>");
       // console.log(pic);
@@ -272,7 +272,7 @@ function setForeground()
 
 function unselectAll()
 {
-  for (data of pic)
+  for (let data of pic)
     data.isSelected = false;
 }
 
@@ -322,13 +322,20 @@ function postUpload(blob)
     console.error("no blob loaded")
     return;
   }
+
+  const token = getCookie("token");
+  if (token == "")
+    return ;
+
+  const formData = new FormData();
+  formData.append(token, blob, "blob");
   const host = 'localhost';
   fetch(`http://${host}:1337/pictures`, {
     method: "POST",
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-    body: blob,
+    body: formData
   })
     .then((response) => {
       if (response.ok)
