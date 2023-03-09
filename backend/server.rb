@@ -30,6 +30,29 @@ elsif mode == "PROD"
 	console.puts "server launched on http://#{host}:#{port}"
 end
 
+
+def check_token(token, conn)
+	found = exist_by_value?("token",  token, "users", conn)
+	if found
+		user = find_by_value("token",  token, "users", conn)
+		return user
+	end
+	return nil
+end
+
+def get_blob(body)
+	first = body.enum_for(:scan, /(?=PNG)/).map do
+		Regexp.last_match.offset(0).first
+	end
+	last = body.enum_for(:scan, /(?=IEND)/).map do
+		Regexp.last_match.offset(0).first
+	end
+	first = first[0] - 1
+	last = last[0] + 7
+	body = body[first..last]
+	return body
+end
+
 i = 1
 loop do
 	client = server.accept
@@ -41,17 +64,8 @@ loop do
 	# Switch on HTTP request
 	case [method_token, target.split('/')[1]]	
 		when ["GET", "data"]
-			# data = []
-			# conn.exec( "SELECT * FROM \"pictures\"" ) do |result|
-			# 	result.each do |row|
-			# 		hash = {}
-			# 		row.keys().each {|key| hash[key] = row.values_at(key).first}
-			# 		data << hash
-			# 	end
-			# end
 			response.status_code = "200 OK"
-			# response.message = JSON.generate(data)
-			response.message = get_table_datas(conn, "pictures")
+			response.message =get_table_datas_with_users(conn, "pictures")
 		when ["POST", "register"]
 			all_headers = get_headers(client)
 			body = client.read(all_headers['Content-Length'].to_i)
@@ -141,13 +155,22 @@ loop do
 		when ["POST", "pictures"]
 			all_headers = get_headers(client)
 			body = client.read(all_headers['Content-Length'].to_i)
-			name = "blob_#{i}"
-			File.open("./upload/#{name}", 'wb') { |f| f.write body }
-			i+=1
-			hash = {:path => "http://#{host}:#{port}/pictures/#{name}", :content=> "yolo", :user_id=> 1}
-			db_insert_request(conn, hash, "pictures")
-			response.status_code  = "201 Created"
-			response.message = JSON.generate({"success"=> "OK"})
+			token = body.lines[1].split[2][6..-3]
+			user = check_token(token, conn)
+			puts user
+			if user	
+				body = get_blob(body)
+				puts "blob"
+				name = "blob_#{i}"
+				File.open("./upload/#{name}", 'wb') { |f| f.write body }
+				i+=1
+				hash = {:path => "http://#{host}:#{port}/pictures/#{name}", :content=> user["login"], :user_id=> user["id"]}
+				db_insert_request(conn, hash, "pictures")
+				response.status_code  = "201 Created"
+				response.message = JSON.generate({"success"=> "OK"})
+			else
+				response = forbidden_reponse(method_token, target, "invalid token")
+			end
 		when ["GET", "pictures"]
 			pic_id = target.split('/')[2]
 			if pic_id == nil
