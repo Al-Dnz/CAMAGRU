@@ -1,7 +1,7 @@
 import { setNavbar } from '../components/navbar.js';
 import { getHost, getCookie, getPartial } from '../config.js';
 
-
+var host;
 var canvas;
 var context
 var video;
@@ -26,6 +26,8 @@ const pauseIconPath = "../images/pause_icon.png";
 document.addEventListener("DOMContentLoaded", async function(event) { 
 	await getPartial('navbar', '../components/navbar.html')
   .then(()=> {setNavbar()})
+  host = await getHost('../config.json');
+
 });
 
 window.onload = function () {
@@ -329,7 +331,7 @@ function postUpload(blob)
 
   const formData = new FormData();
   formData.append(token, blob, "blob");
-  const host = 'localhost';
+
   fetch(`http://${host}:1337/pictures`, {
     method: "POST",
     headers: {

@@ -32,7 +32,7 @@ function send()
 			document.cookie = "token" + "=" + data.token
 		login.value = "";
 		password.value = "";
-		window.location.href = './index.html';
+		window.location.href = `http://${host}/index.html`;
 	})
 	.catch(async (error) => {
 		data = await error;
