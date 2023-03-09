@@ -335,7 +335,7 @@ function postUpload(blob)
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-    body: formData
+    body: formData 
   })
     .then((response) => {
       if (response.ok)
@@ -345,14 +345,9 @@ function postUpload(blob)
     })
     .then((data) => {
       console.log('success:', data);
-      blob = null;
-      // var img = document.querySelector('#myImg');
-      // URL.revokeObjectURL(img.src);
-      // img.src = "";
     })
     .catch(async (error) => {
-      data = await error;
-      console.error('error:', data.error);
+      console.error('error:', "pictures has not been posted");
     });
 }
 
