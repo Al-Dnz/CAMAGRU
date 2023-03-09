@@ -68,3 +68,20 @@ def get_table_datas(conn, table)
 	end
 	return JSON.generate(data)
 end
+
+def get_table_datas_with_users(conn, table)
+	data = []
+	conn.exec( "SELECT * FROM \"#{table}\"" ) do |result|
+		result.each do |row|
+			hash = {}
+			row.keys().each {|key| hash[key] = row.values_at(key).first}
+			data << hash
+		end
+	end
+	data.each do |e|
+		e["user"] = find_by_value("id", e["user_id"], "users", conn)["login"]	
+	end
+	return JSON.generate(data)
+end
+
+
