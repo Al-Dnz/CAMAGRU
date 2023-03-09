@@ -16,5 +16,5 @@ make
 
 then go to your browser at URL:
 ```
-http://loclahost:8000
+http://localhost:80
 ```
