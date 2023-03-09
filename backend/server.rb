@@ -175,6 +175,10 @@ loop do
 
  	# Construct the HTTP Response
 	http_response = construct_http_response(response, version_number, target)
-	client.puts http_response
+	begin
+		client.puts http_response
+	rescue
+		puts 'SERVER ERROR'
+	end
 	client.close
 end
