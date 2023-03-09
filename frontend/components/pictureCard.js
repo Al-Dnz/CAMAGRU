@@ -2,8 +2,8 @@
 function createCard(picture) {
 	const markup =
 		`<div id="pictureCard${picture.id}" style="display: block" class="max-w-sm max-w-md mx-auto rounded overflow-hidden shadow-lg" data-type="picture_card_template">
-			<div class="font-bold text-xl mb-2">The Coldest Sunset yolo</div>
-			<img class="w-full" src="${picture.path}" alt="Sunset in the mountains">
+			<div class="font-bold text-xl mb-2">${picture.user}</div>
+			<img class="w-full" src="${picture.path}">
 			<div class="px-6 py-4">
 				<button>
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-500 fill-red-500">
