@@ -8,6 +8,7 @@ require 'dotenv'
 require 'base64'
 require_relative './server_util.rb'
 require_relative './request_util.rb'
+require_relative './data_parsing.rb'
 
 Dotenv.load("../.env")
 
@@ -50,9 +51,9 @@ loop do
 				hash = JSON.parse body.gsub('=>', ':')
 				
 				dto_hash = {}
-				dto_hash["login"] = {type: String, length: [1, -1]}
-				dto_hash["password"] = {type: String, length: [1, -1]}
-				dto_hash["email"] = {type: String, length: [1, -1], contain: '@'}
+				dto_hash["login"] = DtoParser.new("login", hash["login"], String, 1, -1)
+				dto_hash["password"] = DtoParser.new("password", hash["password"], Password, -1, -1)
+				dto_hash["email"] = DtoParser.new("email", hash["email"], Mail, -1, -1)
 				hash = check_dto(hash, dto_hash)
 				
 				if hash.is_a?(String)
@@ -79,9 +80,13 @@ loop do
 			begin
 				hash = JSON.parse body.gsub('=>', ':')
 				dto_hash = {}
-				dto_hash["login"] = {type: String, length: [1, -1]}
-				dto_hash["password"] = {type: String, length: [1, -1]}
+				# dto_hash["login"] = {type: String, length: [1, -1]}
+				# dto_hash["password"] = {type: String, length: [1, -1]}
+
+				dto_hash["login"] = DtoParser.new("login", hash["login"], String, 1, -1)
+				dto_hash["password"] = DtoParser.new("password", hash["password"], Password, -1, -1)
 				hash = check_dto(hash, dto_hash)
+				
 				if hash.is_a?(String)
 					response = forbidden_reponse(method_token, target, hash)
 				else
