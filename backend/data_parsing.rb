@@ -128,6 +128,7 @@ end
 def check_dto(hash, dto_hash)
 	error = false
 	errors_arr = []
+	new_hash = {}
 	dto_hash.keys().each do |key|
 		if !hash.key?(key)
 			error = true
@@ -135,12 +136,13 @@ def check_dto(hash, dto_hash)
 			next
 		end
 		dto_parser = dto_hash[key]
+		new_hash[key] = hash[key]
 		if dto_parser.validation == false
 			error = true
 			errors_arr << dto_parser.message() 
 		end
 	end
-	return error ? errors_arr.join(", ") : hash
+	return error ? errors_arr.join(", ") : new_hash
 end
 
 
