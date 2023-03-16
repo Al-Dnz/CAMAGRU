@@ -24,6 +24,11 @@ function setNavbar()
 		}
 	});
 
+	settingsBtn.addEventListener("click", () => {
+			window.location.replace("./userSettings.html");
+	});
+
+
 }
 
 export { setNavbar };
