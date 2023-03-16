@@ -168,6 +168,54 @@ loop do
 					response.content_type = "image/png"
 				end
 			end
+		when ["POST", "user"]
+			all_headers = get_headers(client)
+			body = client.read(all_headers['Content-Length'].to_i)
+			hash = JSON.parse body.gsub('=>', ':')
+			token = hash['token']
+			user = check_token(token, conn)
+			if user
+				puts user
+				response.status_code = "200 OK"
+				response.message = JSON.generate({:login => user["login"], :email => user["email"], :notified => user["notified"]})
+			else
+				response = forbidden_reponse(method_token, target, "invalid token")
+			end
+		when ["PUT", "user"]
+			all_headers = get_headers(client)
+			body = client.read(all_headers['Content-Length'].to_i)
+			hash = JSON.parse body.gsub('=>', ':')
+			token = hash['token'] || ""
+			user = check_token(token, conn)
+			if user
+				dto_hash = {}
+				dto_hash["login"] = DtoParser.new("login", hash["login"], String, 1, -1)
+				dto_hash["email"] = DtoParser.new("email", hash["email"], Mail, -1, -1)
+				dto_hash["password"] = DtoParser.new("password", hash["password"], Password, -1, -1) if hash['email']
+				hash = check_dto(hash, dto_hash)
+				p hash
+				if hash.is_a?(String)
+					response = forbidden_reponse(method_token, target, hash)
+				else
+					if exist_by_value?('email', hash["email"], "users", conn)  && hash["email"] != user["email"]
+						response = forbidden_reponse(method_token, target, "this email is already registered in database")
+					elsif exist_by_value?('login', hash["login"], "users", conn) && hash["login"] != user["login"]
+						response = forbidden_reponse(method_token, target, "this login is already registered in database")
+					else
+						id = user['id']
+						to_find = {"table"=>"users", "column"=>"id", "value"=>"#{id}"}
+						
+						hash.keys.each do |key|
+							to_change = {"column"=>"#{key}", "value"=>"#{hash[key]}"}
+							update_by_value(conn, to_find, to_change)
+						end
+						response.status_code  = "201 Created"
+						response.message = JSON.generate(hash)
+					end
+				end
+			else
+				response = forbidden_reponse(method_token, target, "invalid token")
+			end
 		else
 			response = not_found_response(method_token, target)
 	end
