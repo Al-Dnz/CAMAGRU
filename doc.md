@@ -19,6 +19,8 @@ https://developer.vonage.com/en/blog/add-overlay-to-video-with-the-vonage-video-
 
 https://codepen.io/junerockwell/pen/xZyrKy
 
+## MOzilla media restriction 
+https://stackoverflow.com/questions/60957829/navigator-mediadevices-is-undefined
 
 
 ## rb <-> php
