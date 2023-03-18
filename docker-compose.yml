@@ -19,7 +19,7 @@ services:
   server:
     container_name: backend
     build:
-      context: server
+      context: backend
       dockerfile: Dockerfile
     networks:
       - backend
@@ -29,7 +29,7 @@ services:
       - .env
     depends_on:
       - postgres
-    # restart: always
+    restart: always
 
   frontend:
     container_name: frontend
@@ -40,12 +40,12 @@ services:
       - backend
       - frontend
     ports:
-      - 8000:8000
+      - 80:80
     env_file:
       - .env
     depends_on:
       - server
-    # restart: always
+    restart: always
 
 networks:
   backend:

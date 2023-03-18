@@ -6,6 +6,6 @@ ADD . /app/
 
 WORKDIR /app/
 
-EXPOSE 8000
+EXPOSE 80
 
 ENTRYPOINT ["sh", "./entrypoint.sh"]
