@@ -27,7 +27,7 @@ class String
 	end
 end
 
-class Integer
+class Integeri
 	def parser(name, n, min, max)
 		validation = Validation.new
 		if !n.is_a?(Integer)
