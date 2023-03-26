@@ -3,7 +3,7 @@ def	db_insert_request(conn, hash, table)
 	values_str = []
 	hash.keys().each { |key| values_str << "'#{hash[key]}'" }
 	values_str = values_str.join(", ")
-	conn.exec( "INSERT INTO \"#{table}\"(#{columns_str}) VALUES (#{values_str});" )
+	res = conn.exec( "INSERT INTO \"#{table}\"(#{columns_str}) VALUES (#{values_str});" )
 end
 
 # def check_dto_init(hash, dto_hash)

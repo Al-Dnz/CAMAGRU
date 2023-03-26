@@ -1,3 +1,7 @@
+import { getHost, getCookie} from '../config.js';
+import createCommentBox from './commentBox.js';
+
+
 
 function createCard(picture) {
 	const markup =
@@ -14,10 +18,17 @@ function createCard(picture) {
 				<hr/>
 				<p class="text-gray-700 text-base"> ${picture.content} </p>
 			</div>
+			<div class="px-6 pt-4 pb-2  space-y-4 comments overflow-y-auto h-32"> </div>
 			<div class="px-6 pt-4 pb-2">
-				<span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#photography</span>
-				<span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#travel</span>
-				<span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#nonrien</span>
+				<form class=" inline-block mt-3  flex   flex-row   flex-wrap" action="" method="">
+					<div class="text-gray-600  w-3/4">
+						<input id="inputComment${picture.id}" type="text" name="comment" class=" w-full p-2 rounded-l-lg" placeholder="Your comment"/>
+					</div>
+					<div class=" w-1/4">
+						<button id="sendComment${picture.id}" class=" w-full text-white  p-2  bg-indigo-400  rounded-r-lg text-center hover: bg-indigo-300" type="button">Send</button>
+					</div>
+				</form>
+				
 			</div>
 		</div>`
 
@@ -25,6 +36,7 @@ function createCard(picture) {
 	div.innerHTML = markup;
 	return div;
 }
+
 
 export { createCard as default };
 

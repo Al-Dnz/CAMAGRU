@@ -49,6 +49,7 @@ def forbidden_reponse(method_token, target, error)
 end
 
 def check_token(token, conn)
+	return nil if !token.is_a?(String)
 	found = exist_by_value?("token",  token, "users", conn)
 	if found
 		user = find_by_value("token",  token, "users", conn)
