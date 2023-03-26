@@ -14,6 +14,7 @@ CREATE TABLE pictures (
 	path VARCHAR(255) DEFAULT NULL,
 	content TEXT DEFAULT NULL,
 	user_id INT DEFAULT NULL,
+	published_date TIMESTAMP NOT NULL DEFAULT now(),
 	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
@@ -21,6 +22,7 @@ CREATE TABLE comments (
 	user_id INT,
 	picture_id INT,
 	content TEXT DEFAULT NULL,
+	published_date TIMESTAMP NOT NULL DEFAULT now(),
 	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id),
 	CONSTRAINT fk_picture FOREIGN KEY(picture_id) REFERENCES pictures(id)
 );
