@@ -104,9 +104,9 @@ loop do
 						response = forbidden_reponse(method_token, target, "user not found")
 					end
 				end
-			rescue JSON::ParserError
+			rescue => e
 				response.status_code = "403 FORBIDDEN"
-				response.message = JSON.generate({error: "JSON parsing error"})
+				response.message = JSON.generate({error: "#{e.message}"})
 			end
 		when ["GET", "confirmation"]
 			subscription_code = target.split('/')[2]
@@ -242,7 +242,7 @@ loop do
 							hash['user_id'] = user['id']
 							db_insert_request(conn, hash, "comments")
 							response.status_code = "200 OK"
-							response.message = JSON.generate({:id => hash["picture_id"], :content => hash["content"], :user => user["login"]})
+							response.message = JSON.generate({:picture_id => hash["picture_id"], :content => hash["content"], :user => user["login"], :published_date => Time.now.strftime("%Y-%m-%d %H:%M:%S.%L") })
 						end
 					else
 						response = forbidden_reponse(method_token, target, hash)
@@ -250,13 +250,14 @@ loop do
 				else
 					response = forbidden_reponse(method_token, target, "invalid token")
 				end
-			rescue JSON::ParserError
-				response = forbidden_reponse(method_token, target, "JSON parsing error")
+			rescue => error
+				p error.class
+				response = forbidden_reponse(method_token, target, error.class)
 			end
-
 		when ["GET", "comment"]
-				
-		#### end of switch	
+			response.status_code = "200 OK"
+			response.message = get_table_datas_with_users(conn, "comments")
+		#### default switch ####	
 		else
 			response = not_found_response(method_token, target)
 	end
