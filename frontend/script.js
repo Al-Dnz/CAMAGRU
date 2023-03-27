@@ -32,7 +32,10 @@ async function getPictures(host)
 
 			const sendBtn = document.getElementById(`sendComment${el.id}`);
 			const comment = document.getElementById(`inputComment${el.id}`);
-			sendBtn.addEventListener("click", () => { postComment(host, comment, el.id) });	
+			sendBtn.addEventListener("click", () => { postComment(host, comment, el.id) });
+
+			const likeBtn = document.getElementById(`pictureCardLike${el.id}`);
+			likeBtn.addEventListener("click", () => { pictureCardLikeHandler(host, el.id) });
 		}
 		return data;
 	})
@@ -110,4 +113,28 @@ async function postComment(host, comment, id)
 		console.error("error in posting comment: ");
 		console.error(error);
 	})
+}
+
+
+function pictureCardLikeHandler(host, pictureId)
+{
+	// text-red-500 fill-red-500
+
+	console.log("check like");
+	const likeBtn = document.getElementById(`pictureCardLike${pictureId}`);
+	let activated = likeBtn.getAttribute("activated") == "true";
+	activated = !activated
+	likeBtn.setAttribute('activated', `${activated}`);
+	if (activated)
+	{
+		likeBtn.querySelector('svg').classList.add('text-red-500');
+		likeBtn.querySelector('svg').classList.add('fill-red-500');
+	}
+	else
+	{	
+		likeBtn.querySelector('svg').classList.remove('text-red-500');
+		likeBtn.querySelector('svg').classList.remove('fill-red-500');
+	}
+
+	// console.log("LIKE => " + pictureId + state);
 }
