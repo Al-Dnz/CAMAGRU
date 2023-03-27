@@ -257,6 +257,36 @@ loop do
 		when ["GET", "comment"]
 			response.status_code = "200 OK"
 			response.message = get_table_datas_with_users(conn, "comments")
+		when ["POST", "like"]
+			all_headers = get_headers(client)
+			body = client.read(all_headers['Content-Length'].to_i)
+			begin
+				hash = JSON.parse body.gsub('=>', ':')
+				token = hash['token']
+				user = check_token(token, conn)
+				if user
+					dto_hash = {}
+					dto_hash["picture_id"] = DtoParser.new("picture_id", hash["picture_id"], Integeri, 1, -1)
+					hash = check_dto(hash, dto_hash)
+					if !hash.is_a?(String)
+						if !exist_by_value?('id', hash["picture_id"], "pictures", conn)
+							response = forbidden_reponse(method_token, target, "this picture does not exist in database")
+						else
+							hash['user_id'] = user['id']
+							db_insert_request(conn, hash, "likes")
+							response.status_code = "200 OK"
+							response.message = JSON.generate({:picture_id => hash["picture_id"], :user => user["login"]})
+						end
+				else
+					response = forbidden_reponse(method_token, target, "invalid token")
+				end
+			rescue => error
+				p error.class
+				response = forbidden_reponse(method_token, target, error.class)
+			end
+		when ["GET", "like"]
+			response.status_code = "200 OK"
+			response.message = get_table_datas_with_users(conn, "likes")
 		#### default switch ####	
 		else
 			response = not_found_response(method_token, target)
@@ -272,8 +302,8 @@ loop do
 	http_response = construct_http_response(response, version_number, target)
 	begin
 		client.puts http_response
-	rescue
-		puts 'SERVER ERROR'
+	rescue e
+		mode == "DEV" ? puts "⚠️ SERVER ERROR : #{e.message}" : console.puts "⚠️ SERVER ERROR : #{e.message}"
 	end
 	client.close
 end
