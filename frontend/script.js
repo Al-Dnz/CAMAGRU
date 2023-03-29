@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async function(event) {
 	})
 
 	await getPictures(host);
+	await getLikes(host);
 	getComments(host);
 });
 
@@ -35,7 +36,7 @@ async function getPictures(host)
 			sendBtn.addEventListener("click", () => { postComment(host, comment, el.id) });
 
 			const likeBtn = document.getElementById(`pictureCardLike${el.id}`);
-			likeBtn.addEventListener("click", () => { pictureCardLikeHandler(host, el.id) });
+			likeBtn.addEventListener("click", async () => { await pictureCardLikeHandler(host, el.id) });
 		}
 		return data;
 	})
@@ -115,26 +116,114 @@ async function postComment(host, comment, id)
 	})
 }
 
-
-function pictureCardLikeHandler(host, pictureId)
+async function pictureCardLikeHandler(host, pictureId)
 {
-	// text-red-500 fill-red-500
-
-	console.log("check like");
 	const likeBtn = document.getElementById(`pictureCardLike${pictureId}`);
 	let activated = likeBtn.getAttribute("activated") == "true";
 	activated = !activated
 	likeBtn.setAttribute('activated', `${activated}`);
+
+	let token = getCookie("token");
+	if (token == "")
+	{
+		alert("You should be connected to post comment");
+		console.error("no token found")
+		return;
+	}
+	const data = 
+	{
+		method: "",
+		token: token,
+		picture_id: parseInt(pictureId, 10)
+	}
 	if (activated)
 	{
-		likeBtn.querySelector('svg').classList.add('text-red-500');
-		likeBtn.querySelector('svg').classList.add('fill-red-500');
+		data.method = "POST";
+		await fetch(`http://${host}:1337/like`,
+		{
+			method: 'POST',
+			headers: {},
+			body: JSON.stringify(data),
+		})
+		.then((response) => 
+		{
+			if (response.ok)
+				return response.json();
+			else
+				return Promise.reject(response.json()); 
+		})
+		.then((res) => 
+		{
+			likeBtn.querySelector('svg').classList.add('text-red-500');
+			likeBtn.querySelector('svg').classList.add('fill-red-500');
+		})
+		.catch(async (err) => 
+		{
+			likeBtn.setAttribute('activated', `${false}`);
+			console.error(err);
+		})
 	}
 	else
 	{	
-		likeBtn.querySelector('svg').classList.remove('text-red-500');
-		likeBtn.querySelector('svg').classList.remove('fill-red-500');
+		data.method = "DELETE";
+		await fetch(`http://${host}:1337/like`,
+		{
+			method: 'POST',
+			headers: {},
+			body: JSON.stringify(data),
+		})
+		.then((response) => 
+		{
+			if (response.ok)
+				return response.json();
+			else
+				return Promise.reject(response.json()); 
+		})
+		.then((res) => 
+		{
+			likeBtn.querySelector('svg').classList.remove('text-red-500');
+			likeBtn.querySelector('svg').classList.remove('fill-red-500');
+		})
+		.catch(async (err) => 
+		{
+			likeBtn.setAttribute('activated', `${true}`);
+			console.error(err);
+		})
+		
 	}
+}
 
-	// console.log("LIKE => " + pictureId + state);
+
+async function getLikes(host)
+{
+
+	await fetch(`http://${host}:1337/like`,
+		{
+			method: 'GET',
+			headers: {}
+		})
+		.then((response) => 
+		{
+			if (response.ok)
+				return response.json();
+			else
+				return Promise.reject(response.json()); 
+		})
+		.then((res) => 
+		{
+			for(let data of res)
+			{
+				let likeBtn = document.getElementById(`pictureCardLike${data.picture_id}`);
+				likeBtn.setAttribute('activated', `${true}`);
+				likeBtn.querySelector('svg').classList.add('text-red-500');
+				likeBtn.querySelector('svg').classList.add('fill-red-500');
+			}
+			
+		})
+		.catch(async (err) => 
+		{
+			console.error(err);
+		})
+
+
 }

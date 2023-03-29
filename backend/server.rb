@@ -263,8 +263,9 @@ loop do
 			begin
 				hash = JSON.parse body.gsub('=>', ':')
 				token = hash['token']
+				method = hash['method']
 				user = check_token(token, conn)
-				if user
+				if user && ["DELETE", "POST"].include?(hash['method'])
 					dto_hash = {}
 					dto_hash["picture_id"] = DtoParser.new("picture_id", hash["picture_id"], Integeri, 1, -1)
 					hash = check_dto(hash, dto_hash)
@@ -273,10 +274,19 @@ loop do
 							response = forbidden_reponse(method_token, target, "this picture does not exist in database")
 						else
 							hash['user_id'] = user['id']
-							db_insert_request(conn, hash, "likes")
+
+							if method == "POST"
+								db_insert_request(conn, hash, "likes")
+							elsif method == "DELETE"
+								db_delete_request(conn, hash, "likes")
+							end
+							
 							response.status_code = "200 OK"
-							response.message = JSON.generate({:picture_id => hash["picture_id"], :user => user["login"]})
+							response.message = JSON.generate({:picture_id => hash["picture_id"]})
 						end
+					else
+						response = forbidden_reponse(method_token, target, hash)
+					end
 				else
 					response = forbidden_reponse(method_token, target, "invalid token")
 				end
@@ -302,8 +312,9 @@ loop do
 	http_response = construct_http_response(response, version_number, target)
 	begin
 		client.puts http_response
-	rescue e
-		mode == "DEV" ? puts "⚠️ SERVER ERROR : #{e.message}" : console.puts "⚠️ SERVER ERROR : #{e.message}"
+	rescue => e
+		puts "⚠️ SERVER ERROR : #{e.message}" if mode == "DEV"
+		console.puts "⚠️ SERVER ERROR : #{e.message}" if mode == "PROD" 
 	end
 	client.close
 end
