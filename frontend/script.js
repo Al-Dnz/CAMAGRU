@@ -6,15 +6,11 @@ import createCommentBox from './components/commentBox.js';
 document.addEventListener("DOMContentLoaded", async function(event) { 
 	
 	const host = await getHost("./config.json");
-
-	await getPartial('navbar', './components/navbar.html')
-	.then(()=> {
-		setNavbar();
-	})
-
+	await getPartial('navbar', './components/navbar.html').then(()=> { setNavbar() })
+	const user  = await getUser(host);
 	await getPictures(host);
-	await getLikes(host);
-	getComments(host);
+	await getLikes(user, host);
+	await getComments(host);
 });
 
 async function getPictures(host)
@@ -126,7 +122,7 @@ async function pictureCardLikeHandler(host, pictureId)
 	let token = getCookie("token");
 	if (token == "")
 	{
-		alert("You should be connected to post comment");
+		alert("You should be connected to like pictures");
 		console.error("no token found")
 		return;
 	}
@@ -193,10 +189,8 @@ async function pictureCardLikeHandler(host, pictureId)
 	}
 }
 
-
-async function getLikes(host)
+async function getLikes(user, host)
 {
-
 	await fetch(`http://${host}:1337/like`,
 		{
 			method: 'GET',
@@ -211,12 +205,20 @@ async function getLikes(host)
 		})
 		.then((res) => 
 		{
+			console.log(res);
 			for(let data of res)
 			{
 				let likeBtn = document.getElementById(`pictureCardLike${data.picture_id}`);
-				likeBtn.setAttribute('activated', `${true}`);
-				likeBtn.querySelector('svg').classList.add('text-red-500');
-				likeBtn.querySelector('svg').classList.add('fill-red-500');
+
+				if (data.user_id == user.id)
+				{
+					likeBtn.setAttribute('activated', `${true}`);
+					likeBtn.querySelector('svg').classList.add('text-red-500');
+					likeBtn.querySelector('svg').classList.add('fill-red-500');
+				}
+				else
+					document.getElementById(`picLikersList${data.picture_id}`).innerHTML += data.user + "  ";
+
 			}
 			
 		})
@@ -224,6 +226,30 @@ async function getLikes(host)
 		{
 			console.error(err);
 		})
+}
 
+async function getUser(host)
+{
+	let token = getCookie("token");
+	if (token == "")
+		return;
+	let user = null;
 
+	await fetch(`http://${host}:1337/user`, {
+		method: 'POST',
+		headers: {},
+		body: JSON.stringify({token: token}),
+	})
+	.then((response) => {
+		if (response.ok)
+				return response.json();
+			else
+				return Promise.reject(response.json()); 
+		})
+	.then((data) => {
+		user =  data;
+	})
+	.catch((e) => {})
+
+	return user;
 }
