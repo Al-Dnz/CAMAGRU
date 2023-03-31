@@ -143,11 +143,15 @@ loop do
 				user = check_token(token, conn)
 				if user	
 					body = get_blob(body)
-					name = "blob_#{i}"
 					FileUtils.mkdir_p 'upload'
-					File.open("./upload/#{name}", 'wb') { |f| f.write body }
+					filename = "blob_#{i}"
+					while File.exist?("upload/#{filename}")
+						i += 1
+						filename = "blob_#{i}"
+					end
+					File.open("./upload/#{filename}", 'wb') { |f| f.write body }
 					i+=1
-					hash = {:path => "http://#{host}:#{port}/pictures/#{name}", :content=> user["login"], :user_id=> user["id"]}
+					hash = {:path => "http://#{host}:#{port}/pictures/#{filename}", :user_id=> user["id"]}
 					db_insert_request(conn, hash, "pictures")
 					response.status_code  = "201 Created"
 					response.message = JSON.generate({"success"=> "OK"})
@@ -178,9 +182,8 @@ loop do
 			token = hash['token']
 			user = check_token(token, conn)
 			if user
-				puts user
 				response.status_code = "200 OK"
-				response.message = JSON.generate({:login => user["login"], :email => user["email"], :notified => user["notified"]})
+				response.message = JSON.generate({:id => user["id"], :login => user["login"], :email => user["email"], :notified => user["notified"]})
 			else
 				response = forbidden_reponse(method_token, target, "invalid token")
 			end
@@ -197,7 +200,6 @@ loop do
 					dto_hash["email"] = DtoParser.new("email", hash["email"], Mail, -1, -1)
 					dto_hash["password"] = DtoParser.new("password", hash["password"], Password, -1, -1) if hash['email']
 					hash = check_dto(hash, dto_hash)
-					p hash
 					if hash.is_a?(String)
 						response = forbidden_reponse(method_token, target, hash)
 					else
@@ -251,12 +253,49 @@ loop do
 					response = forbidden_reponse(method_token, target, "invalid token")
 				end
 			rescue => error
-				p error.class
 				response = forbidden_reponse(method_token, target, error.class)
 			end
 		when ["GET", "comment"]
 			response.status_code = "200 OK"
 			response.message = get_table_datas_with_users(conn, "comments")
+		when ["POST", "like"]
+			all_headers = get_headers(client)
+			body = client.read(all_headers['Content-Length'].to_i)
+			begin
+				hash = JSON.parse body.gsub('=>', ':')
+				token = hash['token']
+				method = hash['method']
+				user = check_token(token, conn)
+				raise "method is missing for post like" if ["DELETE", "POST"].include?(hash['method']) == false
+				if user 
+					dto_hash = {}
+					dto_hash["picture_id"] = DtoParser.new("picture_id", hash["picture_id"], Integeri, 1, -1)
+					hash = check_dto(hash, dto_hash)
+					if !hash.is_a?(String)
+						if !exist_by_value?('id', hash["picture_id"], "pictures", conn)
+							response = forbidden_reponse(method_token, target, "this picture does not exist in database")
+						else
+							hash['user_id'] = user['id']
+							if method == "POST"
+								db_insert_request(conn, hash, "likes")
+							elsif method == "DELETE"
+								db_delete_request(conn, hash, "likes")
+							end
+							response.status_code = "200 OK"
+							response.message = JSON.generate({:picture_id => hash["picture_id"]})
+						end
+					else
+						raise hash
+					end
+				else
+					raise "invalid token"
+				end
+			rescue Exception => error
+				response = forbidden_reponse(method_token, target, error.message)
+			end
+		when ["GET", "like"]
+			response.status_code = "200 OK"
+			response.message = get_table_datas_with_users(conn, "likes")
 		#### default switch ####	
 		else
 			response = not_found_response(method_token, target)
@@ -272,8 +311,9 @@ loop do
 	http_response = construct_http_response(response, version_number, target)
 	begin
 		client.puts http_response
-	rescue
-		puts 'SERVER ERROR'
+	rescue => e
+		puts "⚠️ SERVER ERROR : #{e.message}" if mode == "DEV"
+		console.puts "⚠️ SERVER ERROR : #{e.message}" if mode == "PROD" 
 	end
 	client.close
 end

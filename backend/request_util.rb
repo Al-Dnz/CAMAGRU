@@ -6,6 +6,13 @@ def	db_insert_request(conn, hash, table)
 	res = conn.exec( "INSERT INTO \"#{table}\"(#{columns_str}) VALUES (#{values_str});" )
 end
 
+def	db_delete_request(conn, hash, table)
+	condition = hash.map { |k, v| "#{k} = '#{v}'" }.join(' AND ')
+	res = conn.exec("DELETE FROM #{table} WHERE #{condition}" )
+end
+
+
+
 # def check_dto_init(hash, dto_hash)
 # 	new_hash = {}
 # 	error = false
