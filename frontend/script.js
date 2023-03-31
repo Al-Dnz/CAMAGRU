@@ -5,32 +5,73 @@ import createCommentBox from './components/commentBox.js';
 
 document.addEventListener("DOMContentLoaded", async function(event) { 
 	
+	const range = 5;
 	const host = await getHost("./config.json");
 	await getPartial('navbar', './components/navbar.html').then(()=> { setNavbar() })
 	const user  = await getUser(host);
-	await getPictures(host);
+	await setPagination(user, host, range);
+	await getPictures(host, 1, range);
 	await getLikes(user, host);
 	await getComments(host);
 });
 
-async function getPictures(host)
+function createPaginationNumberItem(user, host, page_number, range)
 {
+	let li = document.createElement("li");
+	li.setAttribute("id", `page${page_number}`);
+	let classArray =  ["px-3", "py-2", "leading-tight", "text-gray-500", "bg-white", "border", "border-gray-300", "hover:bg-gray-100", "hover:text-gray-700", "dark:bg-gray-800", "dark:border-gray-700", "dark:text-gray-400", "dark:hover:bg-gray-700", "dark:hover:text-white"];
+	for (let classItem of classArray)
+		li.classList.add(classItem);
+	li.innerHTML = page_number;
+	li.addEventListener("click", async (event) => {
+		await getPictures(host, page_number, range);
+		await getLikes(user, host);
+		await getComments(host);
+	});
+	return li;
+}
+
+async function setPagination(user, host, range)
+{
+	const ul = document.getElementById("pageSelectBtnList");
+	await fetch(`http://${host}:1337/data`)
+	.then((response) => response.json())
+	.then((data) => 
+	{
+		let numberOfDatas =  data.length
+		for (let i  = 1 ; i <= 1 + numberOfDatas / range; i++)
+		{
+			let li = createPaginationNumberItem(user, host, i, range);
+			ul.appendChild(li);
+		}
+	})
+}
+
+async function getPictures(host, pageNumber, range)
+{
+	const list =  document.getElementById("dataList");
+	list.innerHTML = "";
+
 	await fetch(`http://${host}:1337/data`)
 	.then((response) => response.json())
 	.then((data) => 
 	{
 		data = data.reverse();
-		var list =  document.getElementById("dataList")
+		let i = 0;
 		for (let el of data)
-		{			
+		{	
+			i++;
+			if (i <= (pageNumber - 1) * range)
+				continue;
+			if (i > pageNumber  * range)
+				break;
+
 			var item = createCard(el);
 			list.appendChild(item);
 			list.appendChild(document.createElement("br"));
-
 			const sendBtn = document.getElementById(`sendComment${el.id}`);
 			const comment = document.getElementById(`inputComment${el.id}`);
 			sendBtn.addEventListener("click", () => { postComment(host, comment, el.id) });
-
 			const likeBtn = document.getElementById(`pictureCardLike${el.id}`);
 			likeBtn.addEventListener("click", async () => { await pictureCardLikeHandler(host, el.id) });
 		}
@@ -47,7 +88,9 @@ async function getComments(host)
 	{
 		for (let comment of comments)
 		{		
-			let divId = `pictureCard${comment.picture_id}`	
+			let divId = `pictureCard${comment.picture_id}`
+			if (divId == null)
+				continue;	
 			var card = document.getElementById(divId);
 			if (!card)
 				continue;
@@ -94,7 +137,7 @@ async function postComment(host, comment, id)
 	.then((res) => 
 	{
 		comment.value = "";
-		let divId = `pictureCard${res.picture_id}`	
+		let divId = `pictureCard${res.picture_id}`;
 		var card = document.getElementById(divId);
 		if (!card)
 			return;
@@ -209,8 +252,10 @@ async function getLikes(user, host)
 			for(let data of res)
 			{
 				let likeBtn = document.getElementById(`pictureCardLike${data.picture_id}`);
-				let likers = [];
+				if (!likeBtn)
+					continue;
 
+				let likers = [];
 				if (user && data.user_id == user.id)
 				{
 					likeBtn.setAttribute('activated', `${true}`);
