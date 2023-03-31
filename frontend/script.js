@@ -191,6 +191,7 @@ async function pictureCardLikeHandler(host, pictureId)
 
 async function getLikes(user, host)
 {
+	
 	await fetch(`http://${host}:1337/like`,
 		{
 			method: 'GET',
@@ -205,20 +206,24 @@ async function getLikes(user, host)
 		})
 		.then((res) => 
 		{
-			console.log(res);
 			for(let data of res)
 			{
 				let likeBtn = document.getElementById(`pictureCardLike${data.picture_id}`);
+				let likers = [];
 
-				if (data.user_id == user.id)
+				if (user && data.user_id == user.id)
 				{
 					likeBtn.setAttribute('activated', `${true}`);
 					likeBtn.querySelector('svg').classList.add('text-red-500');
 					likeBtn.querySelector('svg').classList.add('fill-red-500');
 				}
 				else
-					document.getElementById(`picLikersList${data.picture_id}`).innerHTML += data.user + "  ";
-
+					likers.push(data.user);
+				
+				let str = "";
+				if (likers.length > 0)
+					str = "by " + likers.join() 
+				document.getElementById(`picLikersList${data.picture_id}`).innerHTML += str;
 			}
 			
 		})
