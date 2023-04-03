@@ -187,18 +187,19 @@ loop do
 			else
 				response = forbidden_reponse(method_token, target, "invalid token")
 			end
-		when ["PUT", "user"]
+		when ["POST", "update_settings"]
 			all_headers = get_headers(client)
 			body = client.read(all_headers['Content-Length'].to_i)
 			begin
 				hash = JSON.parse body.gsub('=>', ':')
 				token = hash['token'] || ""
 				user = check_token(token, conn)
+				p hash
 				if user
 					dto_hash = {}
 					dto_hash["login"] = DtoParser.new("login", hash["login"], String, 1, -1)
 					dto_hash["email"] = DtoParser.new("email", hash["email"], Mail, -1, -1)
-					dto_hash["password"] = DtoParser.new("password", hash["password"], Password, -1, -1) if hash['email']
+					dto_hash["notified"] = DtoParser.new("notified", hash["notified"], Boolean, -1, -1)
 					hash = check_dto(hash, dto_hash)
 					if hash.is_a?(String)
 						response = forbidden_reponse(method_token, target, hash)
@@ -224,6 +225,37 @@ loop do
 				end
 			rescue JSON::ParserError
 				response = forbidden_reponse(method_token, target, "invalid json payload")
+			end
+		when ["POST", "update_password"]
+			all_headers = get_headers(client)
+			body = client.read(all_headers['Content-Length'].to_i)
+			begin
+				hash = JSON.parse body.gsub('=>', ':')
+				token = hash['token'] || ""
+				user = check_token(token, conn)
+				raise "invalid token" if !user
+				if user
+					dto_hash = {}
+					dto_hash["password"] = DtoParser.new("password", hash["password"], Password, 1, -1)
+					dto_hash["new_password"] = DtoParser.new("new_password", hash["new_password"], Password, -1, -1)
+					hash = check_dto(hash, dto_hash)
+					raise hash if hash.is_a?(String)
+
+						raise "incorect password" if user['password'] != hash['password']
+						hash[:password] = hash[:new_password]
+						hash= hash.slice("password")
+						p hash
+						id = user['id']
+						to_find = {"table"=>"users", "column"=>"id", "value"=>"#{id}"}
+						hash.keys.each do |key|
+							to_change = {"column"=>"#{key}", "value"=>"#{hash[key]}"}
+							update_by_value(conn, to_find, to_change)
+						end
+						response.status_code  = "201 Created"
+						response.message = JSON.generate(hash)
+				end
+			rescue Exception => error
+				response = forbidden_reponse(method_token, target, error.message)
 			end
 		when ["POST", "comment"]
 			all_headers = get_headers(client)

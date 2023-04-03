@@ -50,7 +50,7 @@ class Boolean
 			validation.error << "#{name} should be typed Boolean"
 			return validation
 		end
-		validation.status = false if validation.error.empty?
+		validation.status = false if !validation.error.empty?
 		return validation
 	end
 end
