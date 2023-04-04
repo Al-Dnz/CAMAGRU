@@ -10,6 +10,7 @@ require 'fileutils'
 require_relative './server_util.rb'
 require_relative './request_util.rb'
 require_relative './data_parsing.rb'
+require_relative './mailer.rb'
 
 Dotenv.load("../.env")
 
@@ -69,6 +70,7 @@ loop do
 						db_insert_request(conn, hash, "users")
 						response.status_code  = "201 Created"
 						response.message = JSON.generate(hash)
+						send_mail(hash['email'], "Confirm your Camagru account", "#{host}:#{port}/confirmation/#{hash['subscription_code']}")
 					end
 				end
 			rescue JSON::ParserError
@@ -187,7 +189,7 @@ loop do
 			else
 				response = forbidden_reponse(method_token, target, "invalid token")
 			end
-		when ["PUT", "user"]
+		when ["POST", "update_settings"]
 			all_headers = get_headers(client)
 			body = client.read(all_headers['Content-Length'].to_i)
 			begin
@@ -198,7 +200,7 @@ loop do
 					dto_hash = {}
 					dto_hash["login"] = DtoParser.new("login", hash["login"], String, 1, -1)
 					dto_hash["email"] = DtoParser.new("email", hash["email"], Mail, -1, -1)
-					dto_hash["password"] = DtoParser.new("password", hash["password"], Password, -1, -1) if hash['email']
+					dto_hash["notified"] = DtoParser.new("notified", hash["notified"], Boolean, -1, -1)
 					hash = check_dto(hash, dto_hash)
 					if hash.is_a?(String)
 						response = forbidden_reponse(method_token, target, hash)
@@ -225,6 +227,33 @@ loop do
 			rescue JSON::ParserError
 				response = forbidden_reponse(method_token, target, "invalid json payload")
 			end
+		when ["POST", "update_password"]
+			all_headers = get_headers(client)
+			body = client.read(all_headers['Content-Length'].to_i)
+			begin
+				hash = JSON.parse body.gsub('=>', ':')
+				token = hash['token'] || ""
+				user = check_token(token, conn)
+				raise "invalid token" if !user
+					dto_hash = {}
+					dto_hash["password"] = DtoParser.new("password", hash["password"], Password, 1, -1)
+					dto_hash["new_password"] = DtoParser.new("new_password", hash["new_password"], Password, -1, -1)
+					hash = check_dto(hash, dto_hash)
+					raise hash if hash.is_a?(String)
+					raise "incorect password" if user['password'] != hash['password']
+					hash['password'] = hash['new_password']
+					hash = hash.slice("password")
+					id = user['id']
+					to_find = {"table"=>"users", "column"=>"id", "value"=>"#{id}"}
+					hash.keys.each do |key|
+						to_change = {"column"=>"#{key}", "value"=>"#{hash[key]}"}
+						update_by_value(conn, to_find, to_change)
+					end
+					response.status_code  = "201 Created"
+					response.message = JSON.generate(hash)
+			rescue Exception => error
+				response = forbidden_reponse(method_token, target, error.message)
+			end
 		when ["POST", "comment"]
 			all_headers = get_headers(client)
 			body = client.read(all_headers['Content-Length'].to_i)
@@ -245,6 +274,12 @@ loop do
 							db_insert_request(conn, hash, "comments")
 							response.status_code = "200 OK"
 							response.message = JSON.generate({:picture_id => hash["picture_id"], :content => hash["content"], :user => user["login"], :published_date => Time.now.strftime("%Y-%m-%d %H:%M:%S.%L") })
+							picture = find_by_value("id", hash["picture_id"], "pictures", conn)
+							pic_owner = find_by_value("id", picture['user_id'], "users", conn) if picture
+							if pic_owner && pic_owner['notified'] == "t"
+								content = "#{user['login']} has comented one of your pictures"
+								send_mail(pic_owner['email'], "Notification from Camagru", content)
+							end
 						end
 					else
 						response = forbidden_reponse(method_token, target, hash)
