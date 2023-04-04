@@ -84,9 +84,13 @@ function updateSettings()
     .then((data) =>
 	{
 		getUser(host);
-		confirmationDiv.style.display = "";
-		confirmationMessage.innerHTML = "";
-		console.log("success:", data);
+      confirmationDiv.style.display = "";
+      confirmationMessage.innerHTML = "";
+      console.log("success:", data);
+      setTimeout(() => {
+        confirmationDiv.style.display = "none";;
+      }, "1500")
+      
     })
     .catch(async (error) => {
       data = await error;
@@ -121,6 +125,11 @@ function updatePassword() {
       confirmationDiv.style.display = "";
       confirmationMessage.innerHTML = "";
       console.log("success:", data);
+      password.value = new_password.value;
+      new_password.value = "";
+      setTimeout(() => {
+        confirmationDiv.style.display = "none";;
+      }, "1500")
     })
     .catch(async (error) => {
       data = await error;

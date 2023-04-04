@@ -194,7 +194,6 @@ loop do
 				hash = JSON.parse body.gsub('=>', ':')
 				token = hash['token'] || ""
 				user = check_token(token, conn)
-				p hash
 				if user
 					dto_hash = {}
 					dto_hash["login"] = DtoParser.new("login", hash["login"], String, 1, -1)
@@ -234,26 +233,22 @@ loop do
 				token = hash['token'] || ""
 				user = check_token(token, conn)
 				raise "invalid token" if !user
-				if user
 					dto_hash = {}
 					dto_hash["password"] = DtoParser.new("password", hash["password"], Password, 1, -1)
 					dto_hash["new_password"] = DtoParser.new("new_password", hash["new_password"], Password, -1, -1)
 					hash = check_dto(hash, dto_hash)
 					raise hash if hash.is_a?(String)
-
-						raise "incorect password" if user['password'] != hash['password']
-						hash[:password] = hash[:new_password]
-						hash= hash.slice("password")
-						p hash
-						id = user['id']
-						to_find = {"table"=>"users", "column"=>"id", "value"=>"#{id}"}
-						hash.keys.each do |key|
-							to_change = {"column"=>"#{key}", "value"=>"#{hash[key]}"}
-							update_by_value(conn, to_find, to_change)
-						end
-						response.status_code  = "201 Created"
-						response.message = JSON.generate(hash)
-				end
+					raise "incorect password" if user['password'] != hash['password']
+					hash['password'] = hash['new_password']
+					hash = hash.slice("password")
+					id = user['id']
+					to_find = {"table"=>"users", "column"=>"id", "value"=>"#{id}"}
+					hash.keys.each do |key|
+						to_change = {"column"=>"#{key}", "value"=>"#{hash[key]}"}
+						update_by_value(conn, to_find, to_change)
+					end
+					response.status_code  = "201 Created"
+					response.message = JSON.generate(hash)
 			rescue Exception => error
 				response = forbidden_reponse(method_token, target, error.message)
 			end
