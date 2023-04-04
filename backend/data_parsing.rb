@@ -87,6 +87,9 @@ class Password
 		tmp_error = true
 		pass.each_char {|c| tmp_error = false if c == c.upcase }
 		validation.error << "#{name} should contain at least one upcased char" if tmp_error
+		tmp_error = true
+		pass.each_char {|c| tmp_error = false if c.match?(/[[:digit:]]/) }
+		validation.error << "#{name} should contain at least one digit char" if tmp_error
 		validation.error << "#{name} should contain at least one special char" if pass !~ /[!@#$%^&*()_+{}\[\]:;'"\/\\?><.,]/
 		validation.status = false if !validation.error.empty?
 		return validation
