@@ -10,6 +10,7 @@ require 'fileutils'
 require_relative './server_util.rb'
 require_relative './request_util.rb'
 require_relative './data_parsing.rb'
+require_relative './mailer.rb'
 
 Dotenv.load("../.env")
 
@@ -69,6 +70,7 @@ loop do
 						db_insert_request(conn, hash, "users")
 						response.status_code  = "201 Created"
 						response.message = JSON.generate(hash)
+						send_mail(hash['email'], "Confirm your Camagru account", "#{host}:#{port}/confirmation/#{hash['subscription_code']}")
 					end
 				end
 			rescue JSON::ParserError
@@ -272,6 +274,12 @@ loop do
 							db_insert_request(conn, hash, "comments")
 							response.status_code = "200 OK"
 							response.message = JSON.generate({:picture_id => hash["picture_id"], :content => hash["content"], :user => user["login"], :published_date => Time.now.strftime("%Y-%m-%d %H:%M:%S.%L") })
+							picture = find_by_value("id", hash["picture_id"], "pictures", conn)
+							pic_owner = find_by_value("id", picture['user_id'], "users", conn) if picture
+							if pic_owner && pic_owner['notified'] == "t"
+								content = "#{user['login']} has comented one of your pictures"
+								send_mail(pic_owner['email'], "Notification from Camagru", content)
+							end
 						end
 					else
 						response = forbidden_reponse(method_token, target, hash)
