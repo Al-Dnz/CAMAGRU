@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async function(event) {
 	await getPartial('navbar', './components/navbar.html').then(()=> { setNavbar() })
 	const user  = await getUser(host);
 	await setPagination(user, host, range);
-	await getPictures(host, 1, range);
+	await getPictures(host, 1, range, user);
 	await getLikes(user, host);
 	await getComments(host);
 });
@@ -24,7 +24,7 @@ function createPaginationNumberItem(user, host, page_number, range)
 		li.classList.add(classItem);
 	li.innerHTML = page_number;
 	li.addEventListener("click", async (event) => {
-		await getPictures(host, page_number, range);
+		await getPictures(host, page_number, range, user);
 		await getLikes(user, host);
 		await getComments(host);
 	});
@@ -47,7 +47,7 @@ async function setPagination(user, host, range)
 	})
 }
 
-async function getPictures(host, pageNumber, range)
+async function getPictures(host, pageNumber, range, user)
 {
 	const list =  document.getElementById("dataList");
 	list.innerHTML = "";
@@ -74,6 +74,11 @@ async function getPictures(host, pageNumber, range)
 			sendBtn.addEventListener("click", () => { postComment(host, comment, el.id) });
 			const likeBtn = document.getElementById(`pictureCardLike${el.id}`);
 			likeBtn.addEventListener("click", async () => { await pictureCardLikeHandler(host, el.id) });
+			const deleteCardBtn = document.getElementById(`deleteCardBtn${el.id}`);
+			if (user && el.user == user.login)
+				deleteCardBtn.addEventListener("click", async () => { await  deletePicture(host, el.id) });
+			else
+				deleteCardBtn.remove();
 		}
 		return data;
 	})
@@ -280,10 +285,11 @@ async function getLikes(user, host)
 
 async function getUser(host)
 {
+	let user = null;
 	let token = getCookie("token");
 	if (token == "")
-		return;
-	let user = null;
+		return user;
+	
 
 	await fetch(`http://${host}:1337/user`, {
 		method: 'POST',
@@ -302,4 +308,41 @@ async function getUser(host)
 	.catch((e) => {})
 
 	return user;
+}
+
+
+async function deletePicture(host, pictureId)
+{
+	let token = getCookie("token");
+	if (token == "")
+		return;
+	
+	const data = 
+	{
+		token: token,
+		picture_id:  parseInt(pictureId, 10)
+	}
+	await fetch(`http://${host}:1337/delete_picture`,
+		{
+			method: 'POST',
+			headers: {},
+			body: JSON.stringify(data)
+		})
+		.then((response) => 
+		{
+			if (response.ok)
+				return response.json();
+			else
+				return Promise.reject(response.json()); 
+		})
+		.then((res) => 
+		{
+			const deleteCardBtn = document.getElementById(`pictureCard${pictureId}`);
+			deleteCardBtn.remove();
+		})
+		.catch(async (err) => 
+		{
+			err = await err;
+			console.error(err);
+		})
 }
