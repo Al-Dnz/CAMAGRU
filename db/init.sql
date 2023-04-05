@@ -23,15 +23,15 @@ CREATE TABLE comments (
 	picture_id INT,
 	content TEXT DEFAULT NULL,
 	published_date TIMESTAMP NOT NULL DEFAULT now(),
-	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id),
-	CONSTRAINT fk_picture FOREIGN KEY(picture_id) REFERENCES pictures(id)
+	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+	CONSTRAINT fk_picture FOREIGN KEY(picture_id) REFERENCES pictures(id) ON DELETE CASCADE
 );
 
 CREATE TABLE likes (
 	user_id INT,
 	picture_id INT,
-	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id),
-	CONSTRAINT fk_picture FOREIGN KEY(picture_id) REFERENCES pictures(id)
+	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+	CONSTRAINT fk_picture FOREIGN KEY(picture_id) REFERENCES pictures(id) ON DELETE CASCADE
 );
 
 -- INSERT INTO "users"(login, password, email) VALUES ('polo', 'qwerty', 'pmartinezi@yopmail.com');

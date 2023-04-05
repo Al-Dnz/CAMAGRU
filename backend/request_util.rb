@@ -8,10 +8,10 @@ end
 
 def	db_delete_request(conn, hash, table)
 	condition = hash.map { |k, v| "#{k} = '#{v}'" }.join(' AND ')
-	res = conn.exec("DELETE FROM #{table} WHERE #{condition}" )
+	res = conn.exec("DELETE FROM #{table} WHERE #{condition}")
 end
 
-def find_by_value(column, value, table, conn)	
+def find_by_value(column, value, table, conn)
 	res = conn.exec( "SELECT * FROM \"#{table}\" WHERE #{column} = '#{value}' " )
 	return res[0]
 end
