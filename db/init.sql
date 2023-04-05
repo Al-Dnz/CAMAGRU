@@ -6,7 +6,7 @@ CREATE TABLE users (
 	token VARCHAR(255), 
 	subscription_code VARCHAR(255) DEFAULT NULL,
 	validated BOOLEAN DEFAULT FALSE,
-	notified BOOLEAN DEFAULT FALSE
+	notified BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE pictures (

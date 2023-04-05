@@ -7,6 +7,7 @@ require 'pg'
 require 'dotenv'
 require 'base64'
 require 'fileutils'
+require 'bcrypt'
 require_relative './server_util.rb'
 require_relative './request_util.rb'
 require_relative './data_parsing.rb'
@@ -51,7 +52,6 @@ loop do
 			body = client.read(all_headers['Content-Length'].to_i)
 			begin
 				hash = JSON.parse body.gsub('=>', ':')
-				
 				dto_hash = {}
 				dto_hash["login"] = DtoParser.new("login", hash["login"], String, 1, -1)
 				dto_hash["password"] = DtoParser.new("password", hash["password"], Password, -1, -1)
@@ -66,6 +66,7 @@ loop do
 					elsif exist_by_value?('login', hash["login"], "users", conn)
 						response = forbidden_reponse(method_token, target, "this login is already registered in database")
 					else
+						hash["password"] = BCrypt::Password.create(hash["password"])
 						hash["subscription_code"] = SecureRandom.uuid
 						db_insert_request(conn, hash, "users")
 						response.status_code  = "201 Created"
@@ -83,9 +84,6 @@ loop do
 			begin
 				hash = JSON.parse body.gsub('=>', ':')
 				dto_hash = {}
-				# dto_hash["login"] = {type: String, length: [1, -1]}
-				# dto_hash["password"] = {type: String, length: [1, -1]}
-
 				dto_hash["login"] = DtoParser.new("login", hash["login"], String, 1, -1)
 				dto_hash["password"] = DtoParser.new("password", hash["password"], Password, -1, -1)
 				hash = check_dto(hash, dto_hash)
@@ -96,7 +94,7 @@ loop do
 					found = exist_by_value?("login",  hash["login"], "users", conn)
 					if found
 						user = find_by_value("login",  hash["login"], "users", conn)
-						if user["password"] == hash["password"]  
+						if BCrypt::Password.new(user["password"]) == hash["password"]  
 							response.status_code = "200 OK"
 							response.message = JSON.generate({:token => user["token"]})
 						else
@@ -240,8 +238,8 @@ loop do
 					dto_hash["new_password"] = DtoParser.new("new_password", hash["new_password"], Password, -1, -1)
 					hash = check_dto(hash, dto_hash)
 					raise hash if hash.is_a?(String)
-					raise "incorect password" if user['password'] != hash['password']
-					hash['password'] = hash['new_password']
+					raise "incorect password" if BCrypt::Password.new(user['password']) != hash['password']
+					hash['password'] = BCrypt::Password.create(hash['new_password'])
 					hash = hash.slice("password")
 					id = user['id']
 					to_find = {"table"=>"users", "column"=>"id", "value"=>"#{id}"}
