@@ -24,6 +24,6 @@ https://stackoverflow.com/questions/60957829/navigator-mediadevices-is-undefined
 
 
 ## rb <-> php
-rack <-> $_SERVER
-puma <->
 DBI <-> PDO
+password_hash <-> Bcrypt
+
