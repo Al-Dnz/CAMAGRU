@@ -1,6 +1,3 @@
-require_relative '../Response.rb'
-require_relative '../server_util.rb'
-
 # get user data usin POST method to check token 
 def POST_user(conn, client, method_token, target)
 	response = Response.new

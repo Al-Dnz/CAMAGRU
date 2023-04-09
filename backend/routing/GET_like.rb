@@ -1,6 +1,3 @@
-require_relative '../Response.rb'
-require_relative '../server_util.rb'
-
 def GET_like(conn, client, method_token, target)
 	response = Response.new 
 	response.status_code = "200 OK"

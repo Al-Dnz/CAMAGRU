@@ -1,6 +1,3 @@
-require_relative '../Response.rb'
-require_relative '../server_util.rb'
-
 def POST_pictures(conn, client, method_token, target, host, port, i)
 	response = Response.new
 	all_headers = get_headers(client)
@@ -23,6 +20,7 @@ def POST_pictures(conn, client, method_token, target, host, port, i)
 		response.status_code  = "201 Created"
 		response.message = JSON.generate({"success"=> "OK"})	
 	rescue Exception => error
+		p error.message
 		response = forbidden_reponse(method_token, target, error.message)
 	end
 	return response

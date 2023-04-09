@@ -1,6 +1,3 @@
-require_relative '../Response.rb'
-require_relative '../server_util.rb'
-
 def GET_pictures(conn, client, method_token, target)
 	response = Response.new
 	pic_id = target.split('/')[2]

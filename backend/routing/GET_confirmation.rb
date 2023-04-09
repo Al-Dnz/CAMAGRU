@@ -1,8 +1,3 @@
-require_relative '../Response.rb'
-require_relative '../server_util.rb'
-require 'securerandom'
-
-
 def html_response_code(host)
 	return  "<!DOCTYPE html>
 	<html>
@@ -34,6 +29,7 @@ def GET_confirmation(conn, client, method_token, target, host)
 		response.status_code  = "201 Created"
 		response.content_type = "text/html; charset=utf-8"
 		response.message = html_response_code(host)
+		response.cookie = "token=#{token}; Path=/"
 	end
 	return response
 end

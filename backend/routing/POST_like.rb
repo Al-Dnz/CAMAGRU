@@ -1,6 +1,3 @@
-require_relative '../Response.rb'
-require_relative '../server_util.rb'
-
 def POST_like(conn, client, method_token, target)
 	response = Response.new
 	all_headers = get_headers(client)
