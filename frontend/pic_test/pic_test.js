@@ -350,6 +350,7 @@ function postUpload(blob)
     })
     .catch(async (error) => {
       console.error('error:', "pictures has not been posted");
+	  console.error(await error)
     });
 }
 

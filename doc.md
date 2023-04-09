@@ -24,6 +24,10 @@ https://stackoverflow.com/questions/60957829/navigator-mediadevices-is-undefined
 
 
 ## rb <-> php
-DBI <-> PDO
-password_hash <-> Bcrypt
-
+PG <-> PDO
+Bcrypt <-> password_hash
+FileUtils <-> fopen
+SecureRandom <-> random_bytes
+JSON.generate() <-> json_encode
+dotenv <-> $_ENV
+TCP_Server <-> socket_create()
