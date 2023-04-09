@@ -147,21 +147,3 @@ def check_dto(hash, dto_hash)
 	end
 	return error ? errors_arr.join(", ") : new_hash
 end
-
-
-
-# str = ARGV[0]
-# e = DtoParser.new(str, Password, 5, 10);
-# e = DtoParser.new(str, String, 5, 10);
-# str = str.to_i
-# e = DtoParser.new(str, Numbers, 5, 10);
-# str = true
-# e = DtoParser.new('true', Booleans, 5, 10);
-# puts e.error
-
-
-
-
-
-
-

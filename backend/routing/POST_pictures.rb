@@ -1,3 +1,16 @@
+def get_blob(body)
+	first = body.enum_for(:scan, /(?=PNG)/).map do
+		Regexp.last_match.offset(0).first
+	end
+	last = body.enum_for(:scan, /(?=IEND)/).map do
+		Regexp.last_match.offset(0).first
+	end
+	first = first[0] - 1
+	last = last[0] + 7
+	body = body[first..last]
+	return body
+end
+
 def POST_pictures(conn, client, method_token, target, host, port, i)
 	response = Response.new
 	all_headers = get_headers(client)
@@ -20,7 +33,6 @@ def POST_pictures(conn, client, method_token, target, host, port, i)
 		response.status_code  = "201 Created"
 		response.message = JSON.generate({"success"=> "OK"})	
 	rescue Exception => error
-		p error.message
 		response = forbidden_reponse(method_token, target, error.message)
 	end
 	return response

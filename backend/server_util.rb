@@ -35,16 +35,3 @@ def check_token(token, conn)
 	end
 	return nil
 end
-
-def get_blob(body)
-	first = body.enum_for(:scan, /(?=PNG)/).map do
-		Regexp.last_match.offset(0).first
-	end
-	last = body.enum_for(:scan, /(?=IEND)/).map do
-		Regexp.last_match.offset(0).first
-	end
-	first = first[0] - 1
-	last = last[0] + 7
-	body = body[first..last]
-	return body
-end
