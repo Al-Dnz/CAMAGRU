@@ -1,17 +1,5 @@
 require_relative './Response.rb'
 
-def construct_http_response(response, version_number, target)
-	http_response = <<~MSG
-		#{version_number} #{response.status_code}
-		Content-Type: #{response.content_type}; charset=#{response.message.encoding.name}
-		Access-Control-Allow-Origin: *
-		Location: #{target}
-		
-		#{response.message}
-	MSG
-	return http_response 
-end
-
 def get_headers(client)
 	all_headers = {}
 	while true
