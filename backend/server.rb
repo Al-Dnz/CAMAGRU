@@ -32,60 +32,63 @@ end
 
 picture_index = 1
 loop do
-	# Get the request payload
+	# Connect to client
 	client = server.accept
 	client_ip = client.peeraddr[2]
-	request_line = client.readline
-	method_token, target, version_number = request_line.split
-	
-	# Switch response by HTTP request
-	response = case [method_token, target.split('/')[1]]	
-		when ["GET", "data"]
-			GET_data(conn)
-		when ["POST", "register"]
-			POST_register(conn, client, method_token, target, host, port)
-		when ["POST", "connect"]
-			POST_connect(conn, client, method_token, target)
-		when ["GET", "confirmation"]
-			GET_confirmation(conn, client, method_token, target, host)
-		when ["POST", "pictures"]
-			POST_pictures(conn, client, method_token, target, host, port, picture_index)
-		when ["POST", "delete_picture"]
-			POST_delete_picture(conn, client, method_token, target)
-		when ["GET", "pictures"]
-			GET_pictures(conn, client, method_token, target)
-		when ["POST", "user"]
-			POST_user(conn, client, method_token, target)
-		when ["POST", "update_settings"]
-			POST_update_settings(conn, client, method_token, target)
-		when ["POST", "update_password"]
-			POST_update_password(conn, client, method_token, target)
-		when ["POST", "comment"]
-			POST_comment(conn, client, method_token, target)
-		when ["GET", "comment"]
-			GET_comment(conn, client, method_token, target)
-		when ["POST", "like"]
-			POST_like(conn, client, method_token, target)
-		when ["GET", "like"]
-			GET_like(conn, client, method_token, target)
-		else
-			not_found_response(method_token, target)
-	end
-
-	# Display in server the HTTP Request log
-	if (mode == "DEV")
-		puts "[#{Time.now.utc}][#{client_ip}][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
-	else
-		console.puts "[#{Time.now.utc}][#{client_ip}][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
-	end
-
- 	# Send to client the HTTP Response
-	http_response = response.to_http(version_number, target)
 	begin
+		# Get the request payload
+		request_line = client.readline
+		method_token, target, version_number = request_line.split
+		
+		# Switch response by HTTP request
+		response = case [method_token, target.split('/')[1]]	
+			when ["GET", "data"]
+				GET_data(conn)
+			when ["POST", "register"]
+				POST_register(conn, client, method_token, target, host, port)
+			when ["POST", "connect"]
+				POST_connect(conn, client, method_token, target)
+			when ["GET", "confirmation"]
+				GET_confirmation(conn, client, method_token, target, host)
+			when ["POST", "pictures"]
+				POST_pictures(conn, client, method_token, target, host, port, picture_index)
+			when ["POST", "delete_picture"]
+				POST_delete_picture(conn, client, method_token, target)
+			when ["GET", "pictures"]
+				GET_pictures(conn, client, method_token, target)
+			when ["POST", "user"]
+				POST_user(conn, client, method_token, target)
+			when ["POST", "update_settings"]
+				POST_update_settings(conn, client, method_token, target)
+			when ["POST", "update_password"]
+				POST_update_password(conn, client, method_token, target)
+			when ["POST", "comment"]
+				POST_comment(conn, client, method_token, target)
+			when ["GET", "comment"]
+				GET_comment(conn, client, method_token, target)
+			when ["POST", "like"]
+				POST_like(conn, client, method_token, target)
+			when ["GET", "like"]
+				GET_like(conn, client, method_token, target)
+			else
+				not_found_response(method_token, target)
+		end
+
+		# Display in server the HTTP Request log
+		if (mode == "DEV")
+			puts "[#{Time.now.utc}][#{client_ip}][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
+		else
+			console.puts "[#{Time.now.utc}][#{client_ip}][#{version_number}][#{method_token}] #{target} [#{response.status_code}]\n"
+		end
+
+		# Send to client the HTTP Response
+		http_response = response.to_http(version_number, target)
 		client.puts http_response
+
+	# Display errors in server
 	rescue => e
-		puts "⚠️ SERVER ERROR : #{e.message}" if mode == "DEV"
-		console.puts "⚠️ SERVER ERROR : #{e.message}" if mode == "PROD" 
+		puts "⚠️  SERVER ERROR : [#{Time.now.utc}][#{client_ip}] => #{e.message}" if mode == "DEV"
+		console.puts "⚠️  SERVER ERROR : [#{Time.now.utc}][#{client_ip}] => #{e.message}" if mode == "PROD" 
 	end
 	client.close
 end
