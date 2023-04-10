@@ -13,7 +13,9 @@ def POST_connect(conn, client, method_token, target)
 		user = find_by_value("login",  hash["login"], "users", conn)
 		raise "invalid password "if BCrypt::Password.new(user["password"]) != hash["password"]  
 		response.status_code = "200 OK"
-		response.message = JSON.generate({:token => user["token"]})
+		token = user["token"]
+		response.cookie = "token=#{token}; Path=/"
+		response.message = JSON.generate({:token => token})
 	rescue Exception => error
 		response = forbidden_reponse(method_token, target, error.message)
 	end
