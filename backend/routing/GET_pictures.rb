@@ -7,7 +7,8 @@ def GET_pictures(conn, client, method_token, target)
 		if !File.exist?("./upload/#{pic_id}")
 			response = not_found_response(method_token, target)
 		else
-			File.open("./upload/#{pic_id}", 'r') { |f| response.message << f.read }
+			file = File.open("./upload/#{pic_id}", 'r') { |f| response.message << f.read }
+			file.close
 			response.status_code = "200 OK"
 			response.content_type = "image/png"
 		end

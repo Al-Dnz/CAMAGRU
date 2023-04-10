@@ -85,10 +85,17 @@ loop do
 		http_response = response.to_http(version_number, target)
 		client.puts http_response
 
-	# Display errors in server
+	# Display errors in server and store it in error_logs file
 	rescue => e
-		puts "⚠️  SERVER ERROR : [#{Time.now.utc}][#{client_ip}] => #{e.message}" if mode == "DEV"
-		console.puts "⚠️  SERVER ERROR : [#{Time.now.utc}][#{client_ip}] => #{e.message}" if mode == "PROD" 
+		File.open("./error_logs.txt", 'a') do |f| 
+			f.write("[#{Time.now.utc}][#{client_ip}]\n")
+			f.write("REQUEST => #{request_line}")
+			f.write("ERROR   => #{e.message}\n")
+			f.write( "-" * 100 + "\n")
+		end
+		error_msg = "⚠️  SERVER ERROR : [#{Time.now.utc}][#{client_ip}] => #{e.message}"
+		puts error_msg if mode == "DEV"
+		console.puts error_msg if mode == "PROD" 
 	end
 	client.close
 end

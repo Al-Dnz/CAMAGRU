@@ -26,7 +26,8 @@ def POST_pictures(conn, client, method_token, target, host, port, i)
 			i += 1
 			filename = "blob_#{i}"
 		end
-		File.open("./upload/#{filename}", 'wb') { |f| f.write body }
+		file = File.open("./upload/#{filename}", 'wb') { |f| f.write body }
+		file.close
 		i+=1
 		hash = {:path => "http://#{host}:#{port}/pictures/#{filename}", :user_id=> user["id"]}
 		db_insert_request(conn, hash, "pictures")

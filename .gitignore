@@ -2,3 +2,4 @@
 .vscode
 */Gemfile.lock
 backend/upload/*
+backend/error_logs.txt
