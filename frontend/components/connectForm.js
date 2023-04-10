@@ -15,9 +15,7 @@ function send()
 
 	fetch(`http://${host}:1337/connect`, {
 		method: 'POST',
-		headers: {
-			// 'Content-Type': 'application/json',
-		},
+		headers: {},
 		body: JSON.stringify(data),
 	})
 	.then((response) => {
@@ -35,9 +33,9 @@ function send()
 		window.location.href = `http://${host}/index.html`;
 	})
 	.catch(async (error) => {
-		data = await error;
-		window.alert(data.error);
-		console.error('error:', data.error); 
+		error = await error;
+		window.alert(error);
+		console.error('error:', error); 
 	});
 }
 
