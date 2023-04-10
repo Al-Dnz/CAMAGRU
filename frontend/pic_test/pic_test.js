@@ -365,4 +365,52 @@ function addImage()
   drawCanvas();
 }
 
+// =======================================
+
+const stickersDiv = document.getElementById("stickers");
+
+
+const url = '../stickers'; // chemin du dossier à scanner
+
+fetch(url)
+  .then(response => response.text())
+  .then(text => {
+    const parser = new DOMParser();
+    const htmlDocument = parser.parseFromString(text, 'text/html');
+    const links = Array.from(htmlDocument.querySelectorAll('a'));
+
+    const files = links.map(link => {
+      const href = link.getAttribute('href');
+      return href.startsWith('/') ? href.substr(1) : href;
+    }).filter(href => {
+      return href !== '.' && href !== '..';
+    });
+
+    return files;
+  })
+  .then(files => {
+	for(let file of files)
+	{
+		console.log(file);
+		var img = document.createElement('img');
+		img.src = "../stickers/" + file;
+		let cssClasses = ["w-64", "h-64", "max-w-xs", "overflow-hidden", "rounded-lg", "shadow-md", "bg-white", "hover:shadow-xl", "transition-shadow", "duration-300", "ease-in-out"]
+		let div1 = document.createElement('div');
+		div1.classList.add(...cssClasses);
+		div1.appendChild(img)
+
+		let div2 = document.createElement('div');
+		div2.setAttribute("id", "sticker"+ file)
+		cssClasses = ["inline-block", "px-3"];
+		div2.classList.add(...cssClasses);
+		div2.appendChild(div1)
+
+		document.getElementById("stickers").appendChild(div2)
+
+		document.getElementById("sticker"+ file).addEventListener("click", (ev) => { addImg("../stickers/" + file) });
+		
+		
+		
+	}
+  })
 
