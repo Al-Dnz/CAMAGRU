@@ -254,13 +254,14 @@ async function getLikes(user, host)
 		})
 		.then((res) => 
 		{
+			let picUsers = {}
 			for(let data of res)
 			{
+				if (!(parseInt(data.picture_id, 10) in picUsers))
+					picUsers[parseInt(data.picture_id, 10)] = [];
 				let likeBtn = document.getElementById(`pictureCardLike${data.picture_id}`);
 				if (!likeBtn)
 					continue;
-
-				let likers = [];
 				if (user && data.user_id == user.id)
 				{
 					likeBtn.setAttribute('activated', `${true}`);
@@ -268,17 +269,20 @@ async function getLikes(user, host)
 					likeBtn.querySelector('svg').classList.add('fill-red-500');
 				}
 				else
-					likers.push(data.user);
-				
-				let str = "";
-				if (likers.length > 0)
-					str = "by " + likers.join() 
-				document.getElementById(`picLikersList${data.picture_id}`).innerHTML += str;
+					picUsers[parseInt(data.picture_id, 10)].push(data.user)
+			}
+			for (let picId of Object.keys(picUsers))
+			{
+				let str = "by " + picUsers[`${picId}`].join(', ')
+				let div = document.getElementById(`picLikersList${picId}`);
+				if (div)
+					div.innerHTML = str;
 			}
 			
 		})
 		.catch(async (err) => 
 		{
+			err = await err;
 			console.error(err);
 		})
 }
