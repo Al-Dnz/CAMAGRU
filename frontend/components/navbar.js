@@ -17,15 +17,15 @@ function setNavbar()
 	powerBtn.addEventListener("click", () => {
 		if (powerBtn.status == "on") {
 			document.cookie = "token" + "=";
-			window.location.replace("./index.html");
+			window.location.replace("../index.html");
 		}
 		else {
-			window.location.replace("./connect.html");
+			window.location.replace("../connect.html");
 		}
 	});
 
 	settingsBtn.addEventListener("click", () => {
-			window.location.replace("./userSettings.html");
+			window.location.replace("../userSettings.html");
 	});
 
 

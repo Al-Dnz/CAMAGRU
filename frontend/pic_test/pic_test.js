@@ -1,6 +1,10 @@
 import { setNavbar } from "../components/navbar.js";
 import { getHost, getCookie, getPartial, generateUUID } from "../config.js";
 
+const token = getCookie("token");
+if (token == "") 
+	window.location.replace("../index.html");
+
 var host;
 var canvas;
 var context;
