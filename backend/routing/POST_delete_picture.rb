@@ -8,7 +8,7 @@ def POST_delete_picture(conn, client, method_token, target)
 		user = check_token(token, conn)
 		raise "invalid token" if !user
 		dto_hash = {}
-		dto_hash["picture_id"] = DtoParser.new("picture_id", hash["picture_id"], Integeri, 1, -1)
+		dto_hash["picture_id"] = DtoParser.new("picture_id", hash["picture_id"], Number, 1, -1)
 		hash = check_dto(hash, dto_hash)
 		raise hash if hash.is_a?(String)
 		raise "this picture does not exist" if !exist_by_value?("id", hash['picture_id'], "pictures", conn)

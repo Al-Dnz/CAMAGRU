@@ -10,7 +10,7 @@ def POST_like(conn, client, method_token, target)
 		raise "method is missing for post like" if ["DELETE", "POST"].include?(hash['method']) == false
 		raise "invalid token" if !user 
 		dto_hash = {}
-		dto_hash["picture_id"] = DtoParser.new("picture_id", hash["picture_id"], Integeri, 1, -1)
+		dto_hash["picture_id"] = DtoParser.new("picture_id", hash["picture_id"], Number, 1, -1)
 		hash = check_dto(hash, dto_hash)
 		raise hash if hash.is_a?(String)
 		raise "this picture does not exist in database" if !exist_by_value?('id', hash["picture_id"], "pictures", conn)	
