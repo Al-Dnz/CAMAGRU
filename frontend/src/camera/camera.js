@@ -1,4 +1,4 @@
-import { setNavbar } from "../components/navbar.js";
+import { setNavbar } from "../navbar/navbar.js";
 import { getHost, getCookie, getPartial, generateUUID } from "../config.js";
 
 const token = getCookie("token");
@@ -28,7 +28,7 @@ const playIconPath = "../images/play_icon.png";
 const pauseIconPath = "../images/pause_icon.png";
 
 document.addEventListener("DOMContentLoaded", async function (event) {
-  await getPartial("navbar", "../components/navbar.html").then(() => {
+  await getPartial("navbar", "../navbar/navbar.html").then(() => {
     setNavbar();
   });
   host = await getHost("../config.json");

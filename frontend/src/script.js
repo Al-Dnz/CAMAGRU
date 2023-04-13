@@ -1,5 +1,5 @@
 import { getHost, getCookie, getPartial } from '../config.js';
-import { setNavbar } from './components/navbar.js';
+import { setNavbar } from '../navbar/navbar.js';
 import createCard from './components/pictureCard.js';
 import createCommentBox from './components/commentBox.js';
 
@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async function(event) {
 	
 	const range = 5;
 	const host = await getHost("./config.json");
-	await getPartial('navbar', './components/navbar.html').then(()=> { setNavbar() })
+	await getPartial('navbar', '../navbar/navbar.html').then(()=> { setNavbar() })
 	const user  = await getUser(host);
 	await setPagination(user, host, range);
 	await getPictures(host, 1, range, user);

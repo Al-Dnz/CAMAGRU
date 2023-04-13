@@ -2,7 +2,7 @@ import json
 import os
 
 host = os.environ['HOST']
-filename = "./config.json"
+filename = "src/config.json"
 with open(filename, "r") as jsonFile:
     data = json.load(jsonFile)
 data["host"] = host
