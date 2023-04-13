@@ -1,5 +1,5 @@
 import { getHost, getCookie, getPartial } from "../config.js";
-import { setNavbar } from "./navbar.js";
+import { setNavbar } from "../navbar/navbar.js";
 
 const login = document.getElementById("login");
 const email = document.getElementById("email");
@@ -17,7 +17,7 @@ const token = getCookie("token");
 if (token == "")
 	window.location.href = '../index.html';
 
-await getPartial("navbar", "./components/navbar.html").then(() => {
+await getPartial("navbar", "../navbar/navbar.html").then(() => {
   setNavbar();
 });
 

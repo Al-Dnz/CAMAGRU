@@ -27,7 +27,7 @@ function send()
 	.then((data) => {
 		console.log('success:', data);
 		if (data.token != null)
-			document.cookie = "token" + "=" + data.token
+			document.cookie = "token" + "=" + data.token + "; Path=/"
 		login.value = "";
 		password.value = "";
 		window.location.href = `http://${host}/index.html`;

@@ -33,11 +33,3 @@ CREATE TABLE likes (
 	CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
 	CONSTRAINT fk_picture FOREIGN KEY(picture_id) REFERENCES pictures(id) ON DELETE CASCADE
 );
-
--- INSERT INTO "users"(login, password, email) VALUES ('polo', 'qwerty', 'pmartinezi@yopmail.com');
--- INSERT INTO "users"(login, password, email) VALUES ('manu', 'azerty', 'manutchao@yopmail.com');
--- INSERT INTO "pictures"(content, user_id, path) VALUES ('top rigolo', 1, 'www.shlagistos.com');
--- INSERT INTO "comments"(content, user_id, picture_id) VALUES ('excellent la photo !', 1, 1);
-
-
-
