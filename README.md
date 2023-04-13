@@ -28,8 +28,8 @@ POSTGRES_HOST=postgres\
 POSTGRES_USER=<db_user>\
 POSTGRES_PASSWORD=<db_password>\
 POSTGRES_DB=<db_name>\
-HOST=<server_host_ip>\
+HOST=<server_host_ip>
 
-[these one are optional]
+[these one are optional]\
 SENDGRID_EMAIL_SENDER=<your_sendgrid_api_mail_adress>\
-SENDGRID_API_KEY=<your_sendgrid_api_key>\
+SENDGRID_API_KEY=<your_sendgrid_api_key>
