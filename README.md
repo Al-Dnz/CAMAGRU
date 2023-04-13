@@ -24,12 +24,12 @@ http://localhost:80
 
 This project require an envfile .env  set at the root with following variables:
 
-POSTGRES_HOST=postgres
-POSTGRES_USER=<db_user>
-POSTGRES_PASSWORD=<db_password>
-POSTGRES_DB=<db_name>
-HOST=<server_host_ip>
+POSTGRES_HOST=postgres\
+POSTGRES_USER=<db_user>\
+POSTGRES_PASSWORD=<db_password>\
+POSTGRES_DB=<db_name>\
+HOST=<server_host_ip>\
 
 [these one are optional]
-SENDGRID_EMAIL_SENDER=<your_sendgrid_api_mail_adress>
-SENDGRID_API_KEY=<your_sendgrid_api_key>
+SENDGRID_EMAIL_SENDER=<your_sendgrid_api_mail_adress>\
+SENDGRID_API_KEY=<your_sendgrid_api_key>\
