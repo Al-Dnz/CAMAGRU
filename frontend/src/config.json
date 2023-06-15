@@ -1,5 +1,5 @@
 {
 	"host": "localhost",
-	"port": "1337",
+	"port": "5000",
 	"appName": "CAMAGRU"
 }

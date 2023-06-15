@@ -15,6 +15,6 @@ RUN gem install bundler
 
 RUN bundle install 
 
-EXPOSE 1337
+EXPOSE 5000
 
 CMD [ "ruby", "server.rb", "PROD" ]

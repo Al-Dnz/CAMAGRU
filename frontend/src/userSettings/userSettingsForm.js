@@ -13,6 +13,7 @@ const confirmationDiv = document.querySelector("#confirmationDiv");
 const confirmationMessage = document.querySelector("#confirmationMessage");
 
 const host = await getHost("../config.json");
+const port = 5000;
 const token = getCookie("token");
 if (token == "")
 	window.location.href = '../index.html';
@@ -25,7 +26,7 @@ getUser(host);
 
 function getUser(host) 
 {
-  fetch(`http://${host}:1337/user`, {
+  fetch(`http://${host}:${port}/user`, {
     method: "POST",
     headers: {
       // 'Content-Type': 'application/json',
@@ -68,7 +69,7 @@ function updateSettings()
     notified: notified.checked,
   };
 
-  fetch(`http://${host}:1337/update_settings`, {
+  fetch(`http://${host}:${port}/update_settings`, {
     method: "POST",
     headers: {
       // 'Content-Type': 'application/json',
@@ -110,7 +111,7 @@ function updatePassword() {
     new_password: new_password.value,
   };
 
-  fetch(`http://${host}:1337/update_password`, {
+  fetch(`http://${host}:${port}/update_password`, {
     method: "POST",
     headers: {
       // 'Content-Type': 'application/json',

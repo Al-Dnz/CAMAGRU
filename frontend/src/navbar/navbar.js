@@ -16,7 +16,8 @@ function setNavbar()
 
 	powerBtn.addEventListener("click", () => {
 		if (powerBtn.status == "on") {
-			document.cookie = "token" + "=";
+			// document.cookie = "token" + "=";
+			document.cookie = "token" + "=" + ";path=/";
 			window.location.replace("../index.html");
 		}
 		else {

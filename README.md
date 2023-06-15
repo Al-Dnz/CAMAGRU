@@ -19,7 +19,7 @@ make
 
 then go to your browser at URL:
 ```
-http://localhost:80
+http://localhost:8000
 ```
 
 ## envfile

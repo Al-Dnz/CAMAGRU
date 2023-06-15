@@ -6,6 +6,14 @@ async function getHost(path) {
 	return host;
 };
 
+async function getPort(path) {
+	let port;
+	await fetch(path)
+		.then((response) => response.json())
+		.then((data) => { port = data.port })
+	return port;
+};
+
 function getCookie(cname) {
 	let name = cname + "=";
 	let decodedCookie = decodeURIComponent(document.cookie);
@@ -36,7 +44,7 @@ function generateUUID()
 	);
 }
 
-export { getHost, getCookie, getPartial, generateUUID };
+export { getHost, getPort, getCookie, getPartial, generateUUID };
 
 
 

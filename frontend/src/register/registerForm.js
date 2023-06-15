@@ -1,6 +1,7 @@
 import { getHost } from "../config.js";
 
 const host = await getHost('../config.json')
+const port = 5000;
 
 function send()
 {
@@ -18,7 +19,7 @@ function send()
 		email: email.value
 	}
 
-	fetch(`http://${host}:1337/register`, {
+	fetch(`http://${host}:${port}/register`, {
 		method: 'POST',
 		headers: {
 			// 'Content-Type': 'application/json',

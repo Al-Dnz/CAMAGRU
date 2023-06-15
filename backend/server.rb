@@ -15,7 +15,7 @@ require_relative './Response.rb'
 Dir["./routing/*.rb"].each {|file| require file }
 Dotenv.load("../.env")
 
-port = 1337
+port = 5000
 server = TCPServer.new(port)
 host = "#{ENV["HOST"]}"
 mode = ["DEV", "PROD"].include?(ARGV[0].upcase) ? ARGV[0].upcase : "PROD"

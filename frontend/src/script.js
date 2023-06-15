@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async function(event) {
 	
 	const range = 5;
 	const host = await getHost("./config.json");
+	const port = 5000;
 	await getPartial('navbar', '../navbar/navbar.html').then(()=> { setNavbar() })
 	const user  = await getUser(host);
 	await setPagination(user, host, range);
@@ -34,7 +35,7 @@ function createPaginationNumberItem(user, host, page_number, range)
 async function setPagination(user, host, range)
 {
 	const ul = document.getElementById("pageSelectBtnList");
-	await fetch(`http://${host}:1337/data`)
+	await fetch(`http://${host}:5000/data`)
 	.then((response) => response.json())
 	.then((data) => 
 	{
@@ -52,7 +53,7 @@ async function getPictures(host, pageNumber, range, user)
 	const list =  document.getElementById("dataList");
 	list.innerHTML = "";
 
-	await fetch(`http://${host}:1337/data`)
+	await fetch(`http://${host}:5000/data`)
 	.then((response) => response.json())
 	.then((data) => 
 	{
@@ -87,7 +88,7 @@ async function getPictures(host, pageNumber, range, user)
 
 async function getComments(host)
 {
-	await fetch(`http://${host}:1337/comment`)
+	await fetch(`http://${host}:5000/comment`)
 	.then((response) => response.json())
 	.then((comments) => 
 	{
@@ -126,7 +127,7 @@ async function postComment(host, comment, id)
 		content: comment.value
 	};
 
-	await fetch(`http://${host}:1337/comment`,
+	await fetch(`http://${host}:5000/comment`,
 	{
 		method: 'POST',
 		headers: {},
@@ -183,7 +184,7 @@ async function pictureCardLikeHandler(host, pictureId)
 	if (activated)
 	{
 		data.method = "POST";
-		await fetch(`http://${host}:1337/like`,
+		await fetch(`http://${host}:5000/like`,
 		{
 			method: 'POST',
 			headers: {},
@@ -210,7 +211,7 @@ async function pictureCardLikeHandler(host, pictureId)
 	else
 	{	
 		data.method = "DELETE";
-		await fetch(`http://${host}:1337/like`,
+		await fetch(`http://${host}:5000/like`,
 		{
 			method: 'POST',
 			headers: {},
@@ -240,7 +241,7 @@ async function pictureCardLikeHandler(host, pictureId)
 async function getLikes(user, host)
 {
 	
-	await fetch(`http://${host}:1337/like`,
+	await fetch(`http://${host}:5000/like`,
 		{
 			method: 'GET',
 			headers: {}
@@ -295,7 +296,7 @@ async function getUser(host)
 		return user;
 	
 
-	await fetch(`http://${host}:1337/user`, {
+	await fetch(`http://${host}:5000/user`, {
 		method: 'POST',
 		headers: {},
 		body: JSON.stringify({token: token}),
@@ -326,7 +327,7 @@ async function deletePicture(host, pictureId)
 		token: token,
 		picture_id:  parseInt(pictureId, 10)
 	}
-	await fetch(`http://${host}:1337/delete_picture`,
+	await fetch(`http://${host}:5000/delete_picture`,
 		{
 			method: 'POST',
 			headers: {},

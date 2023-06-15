@@ -3,7 +3,7 @@ def html_response_code(host)
 	<html>
 		<head>
 			<script>
-				window.location.replace(\"http://#{host}/index.html\");
+				window.location.replace(\"http://#{host}:8000/index.html\");
 			</script> 
 		</head>
 	</html>"

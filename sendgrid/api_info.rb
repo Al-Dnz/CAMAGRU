@@ -1,6 +1,6 @@
 require 'sendgrid-ruby'
 require 'dotenv'
-Dotenv.load(".env")
+Dotenv.load("../.env")
 
 sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
 response = sg.client.user.credits.get()

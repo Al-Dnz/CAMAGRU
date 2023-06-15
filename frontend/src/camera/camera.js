@@ -6,6 +6,7 @@ if (token == "")
 	window.location.replace("../index.html");
 
 var host;
+var port;
 var canvas;
 var context;
 var video;
@@ -32,6 +33,7 @@ document.addEventListener("DOMContentLoaded", async function (event) {
     setNavbar();
   });
   host = await getHost("../config.json");
+  port = 5000;
 });
 
 window.onload = function () {
@@ -364,7 +366,7 @@ function postUpload(blob) {
   const formData = new FormData();
   formData.append(token, blob, "blob");
 
-  fetch(`http://${host}:1337/pictures`, {
+  fetch(`http://${host}:${port}/pictures`, {
     method: "POST",
     headers: {
       "Content-Type": "multipart/form-data",

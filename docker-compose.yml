@@ -12,8 +12,8 @@ services:
       - .env
     ports:
       - 5432:5432
-    # volumes:
-    #   - postgres-data:/var/lib/postgresql/data
+    volumes:
+      - postgres-data
     restart: always
 
   backend:
@@ -24,7 +24,7 @@ services:
     networks:
       - backend
     ports:
-      - 1337:1337
+      - 5000:5000
     env_file:
       - .env
     depends_on:
@@ -40,7 +40,7 @@ services:
       - backend
       - frontend
     ports:
-      - 80:80
+      - 8000:80
     env_file:
       - .env
     restart: always

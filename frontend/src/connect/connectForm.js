@@ -1,6 +1,7 @@
 import { getHost } from "../config.js";
 
 const host = await getHost('../config.json')
+const port = 5000;
 
 function send()
 {
@@ -13,7 +14,7 @@ function send()
 		password: password.value,
 	}
 
-	fetch(`http://${host}:1337/connect`, {
+	fetch(`http://${host}:${port}/connect`, {
 		method: 'POST',
 		headers: {},
 		body: JSON.stringify(data),
@@ -30,11 +31,12 @@ function send()
 			document.cookie = "token" + "=" + data.token + "; Path=/"
 		login.value = "";
 		password.value = "";
-		window.location.href = `http://${host}/index.html`;
+		window.location.replace("../index.html");
+		// window.location.href = `http://${host}:8000/index.html`;
 	})
 	.catch(async (error) => {
 		error = await error;
-		window.alert(error);
+		window.alert(error.error);
 		console.error('error:', error); 
 	});
 }
