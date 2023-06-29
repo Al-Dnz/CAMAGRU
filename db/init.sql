@@ -5,6 +5,7 @@ CREATE TABLE users (
 	email TEXT,
 	token VARCHAR(255), 
 	subscription_code VARCHAR(255) DEFAULT NULL,
+	reset_password_code VARCHAR(255) DEFAULT NULL,
 	validated BOOLEAN DEFAULT FALSE,
 	notified BOOLEAN DEFAULT TRUE
 );

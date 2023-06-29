@@ -21,7 +21,7 @@ def POST_update_settings(conn, client, method_token, target)
 			to_change = {"column"=>"#{key}", "value"=>"#{hash[key]}"}
 			update_by_value(conn, to_find, to_change)
 		end
-		response.status_code  = "201 Created"
+		response.status_code  = "202 Accepted"
 		response.message = JSON.generate(hash)
 	rescue Exception => error
 		response = forbidden_reponse(method_token, target, error.message)

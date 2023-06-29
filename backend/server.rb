@@ -15,19 +15,21 @@ require_relative './Response.rb'
 Dir["./routing/*.rb"].each {|file| require file }
 Dotenv.load("../.env")
 
-port = 5000
-server = TCPServer.new(port)
+client_port = 8000 #ENV["CLIENT_PORT"]
+server_port = 5000 #ENV["SERVER_PORT"]
+server = TCPServer.new(server_port)
+
 host = "#{ENV["HOST"]}"
 mode = ["DEV", "PROD"].include?(ARGV[0].upcase) ? ARGV[0].upcase : "PROD"
 if mode == "DEV"
 	conn = PG::Connection.new(:host =>  'localhost' , :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
-	puts "[#{Time.now.utc}] server launched on http://#{host}:#{port}"
+	puts "[#{Time.now.utc}] server launched on http://#{host}:#{server_port}"
 elsif mode == "PROD"
 	conn = PG::Connection.new(:host =>  ENV["POSTGRES_HOST"], :user => ENV["POSTGRES_USER"], :dbname => ENV["POSTGRES_DB"], :port => '5432', :password => ENV["POSTGRES_PASSWORD"])
 	fd = IO.sysopen("/proc/1/fd/1", "w")
 	console = IO.new(fd,"w")
 	console.sync = true
-	console.puts "[#{Time.now.utc}] server launched on http://#{host}:#{port}"
+	console.puts "[#{Time.now.utc}] server launched on http://#{host}:#{server_port}"
 end
 
 picture_index = 1
@@ -45,13 +47,13 @@ loop do
 			when ["GET", "data"]
 				GET_data(conn)
 			when ["POST", "register"]
-				POST_register(conn, client, method_token, target, host, port)
+				POST_register(conn, client, method_token, target, host, server_port)
 			when ["POST", "connect"]
 				POST_connect(conn, client, method_token, target)
 			when ["GET", "confirmation"]
 				GET_confirmation(conn, client, method_token, target, host)
 			when ["POST", "pictures"]
-				POST_pictures(conn, client, method_token, target, host, port, picture_index)
+				POST_pictures(conn, client, method_token, target, host, server_port, picture_index)
 			when ["POST", "delete_picture"]
 				POST_delete_picture(conn, client, method_token, target)
 			when ["GET", "pictures"]
@@ -70,6 +72,10 @@ loop do
 				POST_like(conn, client, method_token, target)
 			when ["GET", "like"]
 				GET_like(conn, client, method_token, target)
+			when ["POST", "reset_password_request"]
+				POST_reset_password_request(conn, client, method_token, target, host, client_port)
+			when ["POST", "reset_password"]
+				POST_reset_password(conn, client, method_token, target, host)
 			else
 				not_found_response(method_token, target)
 		end

@@ -1,4 +1,4 @@
-def POST_register(conn, client, method_token, target, host, port)
+def POST_register(conn, client, method_token, target, host, server_port)
 	response = Response.new
 	all_headers = get_headers(client)
 	body = client.read(all_headers['Content-Length'].to_i)
@@ -17,7 +17,7 @@ def POST_register(conn, client, method_token, target, host, port)
 		db_insert_request(conn, hash, "users")
 		response.status_code  = "201 Created"
 		response.message = JSON.generate(hash)
-		send_mail(hash['email'], "Confirm your Camagru account", "http://#{host}:#{port}/confirmation/#{hash['subscription_code']}")
+		send_mail(hash['email'], "Confirm your Camagru account", "http://#{host}:#{server_port}/confirmation/#{hash['subscription_code']}")
 	rescue Exception => error
 		response = forbidden_reponse(method_token, target, error.message)
 	end
