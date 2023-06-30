@@ -32,7 +32,6 @@ function send()
 		login.value = "";
 		password.value = "";
 		window.location.replace("../index.html");
-		// window.location.href = `http://${host}:8000/index.html`;
 	})
 	.catch(async (error) => {
 		error = await error;

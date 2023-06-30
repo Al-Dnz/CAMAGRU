@@ -51,7 +51,7 @@ loop do
 			when ["POST", "connect"]
 				POST_connect(conn, client, method_token, target)
 			when ["GET", "confirmation"]
-				GET_confirmation(conn, client, method_token, target, host)
+				GET_confirmation(conn, client, method_token, target, host, client_port)
 			when ["POST", "pictures"]
 				POST_pictures(conn, client, method_token, target, host, server_port, picture_index)
 			when ["POST", "delete_picture"]

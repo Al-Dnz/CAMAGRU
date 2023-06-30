@@ -10,7 +10,6 @@ def POST_reset_password(conn, client, method_token, target, host)
 		hash = check_dto(hash, dto_hash)
 		raise hash if hash.is_a?(String)
 		reset_password_code = hash["reset_password_code"]
-		puts reset_password_code
 		raise "invalid reset password code" if !exist_by_value?('reset_password_code', reset_password_code, "users", conn)
 		user = find_by_value("reset_password_code", reset_password_code, "users", conn)
 		id = user['id']

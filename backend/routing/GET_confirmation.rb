@@ -1,15 +1,15 @@
-def html_response_code(host)
+def html_response_code(host, client_port)
 	return  "<!DOCTYPE html>
 	<html>
 		<head>
 			<script>
-				window.location.replace(\"http://#{host}:8000/index.html\");
+				window.location.replace(\"http://#{host}:#{client_port}/index.html\");
 			</script> 
 		</head>
 	</html>"
 end
 
-def GET_confirmation(conn, client, method_token, target, host)
+def GET_confirmation(conn, client, method_token, target, host, client_port)
 	response = Response.new
 	subscription_code = target.split('/')[2]
 	if subscription_code == nil || !exist_by_value?('subscription_code', subscription_code, "users", conn) 
@@ -28,7 +28,7 @@ def GET_confirmation(conn, client, method_token, target, host)
 		hash = find_by_value("id", id, "users", conn)
 		response.status_code  = "201 Created"
 		response.content_type = "text/html; charset=utf-8"
-		response.message = html_response_code(host)
+		response.message = html_response_code(host, client_port)
 		response.cookie = "token=#{token}; Path=/"
 	end
 	return response
